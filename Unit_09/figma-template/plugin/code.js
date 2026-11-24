@@ -486,11 +486,21 @@ async function main() {
     set.layoutMode = 'HORIZONTAL';
     set.layoutWrap = 'WRAP';
     set.primaryAxisSizingMode = 'FIXED';
-    set.counterAxisSizingMode = 'AUTO';
     set.resize(width, 100);
+    set.counterAxisSizingMode = 'AUTO'; // 要放在 resize 之後，否則高度會被固定成 100
     set.itemSpacing = 16;
     set.counterAxisSpacing = 16;
     set.paddingLeft = set.paddingRight = set.paddingTop = set.paddingBottom = 24;
+  }
+  // 依變體順序排成固定欄數的表格（例如 Button：每列 5 個 State）
+  function gridSet(set, cols, cellW, cellH) {
+    const pad = 24;
+    set.children.forEach((v, i) => {
+      v.x = pad + (i % cols) * cellW;
+      v.y = pad + Math.floor(i / cols) * cellH + (cellH - v.height) / 2;
+    });
+    const rows = Math.ceil(set.children.length / cols);
+    set.resizeWithoutConstraints(pad * 2 + cols * cellW, pad * 2 + rows * cellH);
   }
   async function sectionTitle(parent, title, desc) {
     const wrap = autoFrame('Title · ' + title, 'VERTICAL');
@@ -700,7 +710,7 @@ async function main() {
   }
   const buttonSet = figma.combineAsVariants(buttonVariants, cCol);
   buttonSet.name = 'Button';
-  layoutSet(buttonSet, 1100);
+  gridSet(buttonSet, STATES.length, 160, 72);
   const bLabel = buttonSet.addComponentProperty('Label', 'TEXT', '按鈕');
   const bShowL = buttonSet.addComponentProperty('Show Left Icon', 'BOOLEAN', false);
   const bIconL = buttonSet.addComponentProperty('Left Icon', 'INSTANCE_SWAP', iconComps['calendar'].id);
@@ -819,6 +829,9 @@ async function main() {
   const head = autoFrame('header', 'VERTICAL');
   head.itemSpacing = 6;
   const badge = badgeSet.children.find(n => n.name === 'Status=Warning').createInstance();
+  const badgeProps = {};
+  badgeProps[propKey(badge, 'Label')] = '待補資料';
+  badge.setProperties(badgeProps);
   head.appendChild(badge);
   const title = await text('顧問評估預約', 'Heading/H3', 'color/text/primary', 'title');
   head.appendChild(title);

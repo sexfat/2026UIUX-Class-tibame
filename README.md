@@ -23,6 +23,12 @@ AI輔助開發實務  6小時
 | Unit 08 | 介面視覺基礎：版面、排版、色彩與一致性 | [簡報](https://sexfat.github.io/2026UIUX-Class-tibame/Unit_08/slides.html) · [作業](https://sexfat.github.io/2026UIUX-Class-tibame/Unit_08/homework.html) |
 | Unit 09 | 元件、樣式與設計系統概念 | [簡報](https://sexfat.github.io/2026UIUX-Class-tibame/Unit_09/slides.html) · [Figma 範本](https://sexfat.github.io/2026UIUX-Class-tibame/Unit_09/figma-template.html) |
 
+### Claude Skills
+
+| Skill | 用途 | 連結 |
+|------|------|------|
+| uiux-check | 依 Unit 06–08 規範審查 UI/UX 介面（易用性、完形與 UX 法則、視覺基礎） | [安裝與使用說明](skills/README.md) · [下載 zip](skills/uiux-check.zip) |
+
 ### 參考連結
 
 https://www.figma.com/resource-library/design-basics/
