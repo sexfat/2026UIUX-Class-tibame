@@ -127,7 +127,24 @@ kbd { font-family: inherit; font-size: .85em; font-weight: 600; background: #fff
   </section>
 
   <section>
-    <h2><span class="n">02</span>匯入方式：執行範本插件</h2>
+    <h2><span class="n">02</span>最快的方式：直接複製 Figma 範本</h2>
+    <p>範本檔案已經建好了。打開連結後複製一份到自己的帳號，就能直接練習，網頁版或桌面版 Figma 都可以。</p>
+    <a class="btn-primary" href="https://www.figma.com/design/J6gMn8zPlpR6gX62ZQMnRK" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>在 Figma 打開範本檔案</a>
+    <div class="steps">
+      <div class="step">
+        <span class="step-tag">Step 1 · 打開範本</span>
+        <p>點上方按鈕，登入你的 Figma 帳號。範本是唯讀的，你可以瀏覽，但不能直接修改。</p>
+      </div>
+      <div class="step">
+        <span class="step-tag">Step 2 · 複製到自己的草稿</span>
+        <p>點畫面上方檔案名稱旁的 <kbd>▾</kbd>，選擇 <kbd>Duplicate to your drafts</kbd>。複製出來的檔案就是你的，可以自由修改，原始範本不會被改到。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">03</span>另一種方式：用插件在自己的檔案建立</h2>
+    <p>想在自己已經開好的空白檔案裡建立，或想看看整套系統是怎麼用程式產生的，可以改用範本插件。</p>
     <a class="btn-primary" href="figma-template/unit09-design-system-plugin.zip" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>下載插件 unit09-design-system-plugin.zip</a>
     <div class="callout warn">
       <p><strong>需要 Figma 桌面版（Desktop App）。</strong>網頁版 Figma 不能從本機匯入插件。還沒安裝的話，先到 Figma 官網下載桌面版。</p>
@@ -159,7 +176,7 @@ kbd { font-family: inherit; font-size: .85em; font-weight: 600; background: #fff
   </section>
 
   <section>
-    <h2><span class="n">03</span>匯入後，先確認這幾件事</h2>
+    <h2><span class="n">04</span>打開範本後，先確認這幾件事</h2>
     <p>點一下項目可以打勾。</p>
     <ul class="checklist">
       <li>Variables 面板裡有 Primitive 與 Semantic 兩個集合</li>
@@ -175,7 +192,7 @@ kbd { font-family: inherit; font-size: .85em; font-weight: 600; background: #fff
   </section>
 
   <section>
-    <h2><span class="n">04</span>同一份 Token 的其他格式</h2>
+    <h2><span class="n">05</span>同一份 Token 的其他格式</h2>
     <p>插件、JSON 與 CSS 都由同一份資料產生，名稱一一對應。交付給工程師或用在其他工具時可以直接使用。</p>
     <ul class="dl-list">
       <li><div class="dl-info"><b>primitive.tokens.json</b><span>W3C Design Tokens 格式 · 基礎層</span></div><a class="dl-btn" href="figma-template/tokens/primitive.tokens.json" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>下載</a></li>
