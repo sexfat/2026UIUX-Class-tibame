@@ -19,9 +19,9 @@ AI輔助開發實務  6小時
 | Unit 04 | Auto Layout、Constraints 與彈性版面 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_04/slides.html) |
 | Unit 05 | 作業探討 第一次檢核點 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_05/slides.html) |
 | Unit 06 | 十大易用性原則與檢查表實務 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_06/slides.html) |
-| Unit 07 | 介面視覺基礎：版面、排版、色彩與一致性 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_07/slides.html) |
-| Unit 08 | 元件、樣式與設計系統概念 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_08/slides.html) |
-| Unit 09 | 完形心理學與介面設計規則 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_09/slides.html) |
+| Unit 07 | 完形心理學與介面設計規則 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_07/slides.html) |
+| Unit 08 | 介面視覺基礎：版面、排版、色彩與一致性 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_08/slides.html) · [作業](https://sexfat.github.io/2026UIUX-Class/Unit_08/homework.html) |
+| Unit 09 | 元件、樣式與設計系統概念 | [簡報](https://sexfat.github.io/2026UIUX-Class/Unit_09/slides.html) |
 
 ### 參考連結
 

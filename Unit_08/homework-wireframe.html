@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>芽芽 Sprout · 原始線框（待重構）</title>
+<!--
+  Unit 08 作業素材：這是一份「故意做壞」的原始線框。
+  版面、字級、間距、圓角、框線、文案用詞都沒有規則，
+  請不要拿這份的數值當參考，它就是你要診斷與重構的對象。
+-->
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #fff; color: #000; font-family: Arial, "PingFang TC", "Microsoft JhengHei", sans-serif; font-size: 15px; line-height: 1.1; }
+.page { width: 1440px; margin: 0 auto; background: #fff; }
+.img { background: #e5e5e5 linear-gradient(to top right, transparent calc(50% - 1px), #aaa, transparent calc(50% + 1px)), linear-gradient(to bottom right, transparent calc(50% - 1px), #aaa, transparent calc(50% + 1px)); border: 1px solid #999; display: flex; align-items: center; justify-content: center; color: #777; font-size: 12px; }
+a { color: #000; }
+.btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #000; background: #fff; color: #000; font-size: 14px; cursor: pointer; }
+.btn.dark { background: #555; color: #fff; }
+
+/* NAV */
+.nav { display: flex; align-items: center; padding: 9px 13px; border-bottom: 3px solid #000; gap: 0; }
+.logo { border: 1px solid #000; padding: 5px 7px; font-size: 17px; font-weight: bold; margin-right: 27px; }
+.nav a { border: 1px solid #999; padding: 6px 9px; margin-right: 5px; font-size: 14px; text-decoration: none; }
+.nav a:nth-child(4) { padding: 11px 9px; }
+.nav .right { margin-left: auto; display: flex; gap: 3px; }
+
+/* HERO */
+.hero { padding: 37px 13px 21px 41px; border: 1px solid #000; margin: 11px 7px; display: flex; gap: 19px; box-shadow: 4px 4px 0 #999; }
+.hero-text { flex: 1; }
+.badge { display: inline-block; border: 2px dashed #000; padding: 2px 4px; font-size: 11px; margin-bottom: 6px; }
+.hero h1 { font-size: 22px; font-weight: bold; margin-bottom: 4px; font-family: "Times New Roman", serif; }
+.hero h2 { font-size: 19px; font-weight: normal; margin-bottom: 13px; }
+.hero p { font-size: 15px; margin-bottom: 9px; }
+.hero .btns { display: flex; gap: 7px; align-items: flex-start; margin-top: 23px; }
+.hero .phone { width: 180px; height: 300px; margin-top: 61px; border-radius: 3px; }
+
+/* STATS */
+.stats { display: flex; gap: 13px; padding: 0 27px; margin: 27px 0 9px; }
+.stat { flex: 1; border: 1px solid #000; padding: 9px; text-align: center; }
+.stat:nth-child(1) { border-radius: 0; }
+.stat:nth-child(2) { border-radius: 12px; box-shadow: 0 2px 6px #888; }
+.stat:nth-child(3) { border-radius: 20px; border-style: dotted; }
+.stat:nth-child(4) { border-radius: 4px; border-width: 2px; }
+
+/* FEATURES */
+.sec-title { font-size: 21px; font-weight: bold; margin: 31px 0 7px 19px; text-decoration: underline; }
+.features { display: grid; grid-template-columns: 1fr 1.3fr 0.8fr; gap: 11px 23px; padding: 0 9px 0 19px; }
+.feat { border: 1px solid #000; padding: 13px 7px; }
+.feat:nth-child(2) { box-shadow: 3px 3px 8px #666; border-radius: 10px; }
+.feat:nth-child(3) { border: 3px double #000; text-align: center; }
+.feat:nth-child(5) { border-radius: 16px; padding: 21px; }
+.feat:nth-child(6) { background: #eee; border: none; }
+.feat h3 { font-size: 16px; margin: 3px 0; }
+.feat h3.big { font-size: 20px; }
+.ico { font-size: 22px; }
+
+/* HOW */
+.how { margin: 41px 7px 13px; padding: 17px; border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: center; }
+.how h2 { font-size: 15px; font-weight: bold; margin-bottom: 5px; }
+.how .steps { font-size: 15px; }
+
+/* TESTIMONIALS */
+.testi { display: flex; gap: 9px; padding: 13px 31px; }
+.q { flex: 1; border: 1px solid #999; padding: 11px; font-style: italic; }
+.q:nth-child(1) { text-align: left; }
+.q:nth-child(2) { text-align: center; border-radius: 30px; }
+.q:nth-child(3) { text-align: right; box-shadow: 0 0 0 4px #ddd; }
+.avatar { width: 37px; height: 37px; border-radius: 50%; display: inline-flex; margin-top: 7px; }
+.q:nth-child(2) .avatar { border-radius: 4px; width: 50px; height: 50px; }
+
+/* PRICING */
+.pricing { display: flex; gap: 17px; padding: 0 43px 0 13px; align-items: flex-start; }
+.plan { flex: 1; border: 1px solid #000; padding: 13px; }
+.plan:nth-child(2) { border: 4px solid #000; padding: 23px 13px; border-radius: 8px; }
+.plan:nth-child(3) { border-radius: 0; box-shadow: 5px 5px 0 #000; }
+.plan h3 { font-size: 17px; }
+.plan .price { font-size: 17px; margin: 5px 0; }
+.plan ul { padding-left: 17px; margin: 9px 0 13px; font-size: 14px; }
+.plan li { margin-bottom: 1px; }
+.tag { display: inline-block; background: #000; color: #fff; font-size: 10px; padding: 2px 5px; margin-left: 4px; }
+
+/* FAQ */
+.faq { padding: 0 19px; }
+.faq dt { font-size: 15px; margin-top: 9px; }
+.faq dd { font-size: 15px; margin-top: 2px; }
+
+/* CTA */
+.cta { margin: 37px 13px 11px; padding: 29px; border: 2px dashed #000; text-align: left; display: flex; align-items: center; gap: 27px; }
+.cta h2 { font-size: 18px; }
+
+/* FOOTER */
+.foot { background: #ccc; padding: 13px 9px; font-size: 12px; display: flex; flex-wrap: wrap; gap: 7px 17px; border-top: 5px solid #000; }
+.foot a { font-size: 13px; }
+.foot .copy { width: 100%; font-size: 11px; margin-top: 9px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- NAV -->
+  <div class="nav">
+    <div class="logo">🌱 芽芽 Sprout</div>
+    <a href="#">首頁</a>
+    <a href="#">功能介紹</a>
+    <a href="#">價格方案</a>
+    <a href="#">使用者心得</a>
+    <a href="#">常見問題</a>
+    <a href="#">植物百科</a>
+    <a href="#">部落格</a>
+    <a href="#">關於我們</a>
+    <a href="#">徵才</a>
+    <a href="#">聯絡我們</a>
+    <div class="right">
+      <span class="btn" style="height:30px;padding:0 9px">登入</span>
+      <span class="btn" style="height:34px;padding:0 13px">註冊會員</span>
+      <span class="btn dark" style="height:38px;padding:0 6px">下載APP</span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-text">
+      <span class="badge">NEW!! 2.0 版上線</span>
+      <h1>芽芽 Sprout — 你的植物照護好幫手</h1>
+      <h2>拍一張照片就能認識你的植物，再也不怕把植物養死！！</h2>
+      <p>芽芽是一款專為植物新手與植物愛好者設計的手機應用程式，透過 AI 影像辨識技術，只要用手機鏡頭拍下植物，就能在幾秒內辨識出超過 1,200 種常見室內與戶外植物的品種，並依據你所在地區的天氣、季節、室內光照條件，自動產生專屬於這株植物的澆水、施肥、換盆與日照提醒，讓你不用再上網查一大堆資料，也不用再擔心忘記澆水或澆太多水導致根部腐爛，不管你是剛開始養第一盆多肉，還是家裡已經有一整面植物牆，芽芽都能幫你輕鬆管理每一盆植物的健康狀態。</p>
+      <p>現在下載即可免費使用基本功能，加入進階版還能解鎖病蟲害診斷與專家諮詢！</p>
+      <div class="btns">
+        <span class="btn dark" style="height:36px;padding:0 15px">App Store 下載</span>
+        <span class="btn" style="height:50px;padding:0 9px;border-radius:25px">Google Play 立即安裝</span>
+        <span class="btn" style="height:28px;padding:0 21px;border-radius:4px">▶ 觀看介紹影片</span>
+        <span class="btn" style="height:44px;padding:0 11px;border-style:dashed">免費試用 7 天</span>
+      </div>
+      <p style="font-size:11px;margin-top:7px">＊ 支援 iOS 15 以上、Android 10 以上。進階版首月免費，可隨時取消。</p>
+    </div>
+    <div class="img phone">App 畫面截圖</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">500,000+<br>累積下載次數</div>
+    <div class="stat">4.8 ★<br>App Store 平均評分（12,483 則評論）</div>
+    <div class="stat">1,200 種<br>植物資料庫</div>
+    <div class="stat">98%<br>使用者表示植物變得更健康了</div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="sec-title">功能介紹</div>
+  <div class="features">
+    <div class="feat">
+      <span class="ico">📷</span>
+      <h3>拍照辨識植物</h3>
+      <p>打開鏡頭對準植物，AI 會在 3 秒內告訴你這是什麼植物，並顯示它的基本資料、適合的環境以及常見的照顧方式，辨識準確率高達 95%。</p>
+    </div>
+    <div class="feat">
+      <span class="ico">●</span>
+      <h3 class="big">澆水提醒</h3>
+      <p>依照植物種類、季節與天氣自動計算澆水頻率，時間到了就推播通知你。</p>
+    </div>
+    <div class="feat">
+      <span class="ico">○</span>
+      <h3>光照偵測</h3>
+      <p>用手機感光元件測量窗邊亮度，告訴你這個位置適不適合放這盆植物。</p>
+    </div>
+    <div class="feat">
+      <span class="ico">[icon]</span>
+      <h3>病蟲害診斷 <span class="tag">進階版</span></h3>
+      <p>葉子變黃、出現斑點？拍下來上傳，系統會比對病徵資料庫，提供可能原因與處理建議。</p>
+    </div>
+    <div class="feat">
+      <span class="ico">★</span>
+      <h3>植物社群</h3>
+      <p>和其他植物愛好者分享照片、交換扦插心得，還可以參加每月的綠手指挑戰活動拿徽章。</p>
+    </div>
+    <div class="feat">
+      <span class="ico">☆</span>
+      <h3>成長日記</h3>
+      <p>每次照顧都會自動記錄，搭配照片時間軸，看見植物一點一點長大。</p>
+    </div>
+  </div>
+
+  <!-- HOW -->
+  <div class="how">
+    <h2>如何開始使用？</h2>
+    <div class="steps">STEP 1 下載芽芽 App 並註冊帳號 → STEP 2 拍下你家裡的植物，讓 AI 幫你辨識 → STEP 3 開啟通知，跟著提醒照顧植物就完成了！</div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <div class="sec-title" style="margin-left:31px;font-size:18px">使用者怎麼說</div>
+  <div class="testi">
+    <div class="q">「以前買的植物通常撐不過一個月，用了芽芽之後我的龜背芋已經長出第五片新葉了！」<br><div class="img avatar"></div> 小米｜台北・上班族</div>
+    <div class="q">「最喜歡光照偵測，終於知道我家哪個角落適合放什麼植物，不用再一直搬來搬去。」<br><div class="img avatar"></div> 阿哲｜台中・設計師</div>
+    <div class="q">「社群很有愛，問問題很快就有人回，還交到一起交換插穗的朋友。」<br><div class="img avatar"></div> Ivy｜高雄・學生</div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="sec-title">價格方案</div>
+  <div class="pricing">
+    <div class="plan">
+      <h3>免費版</h3>
+      <div class="price">NT$0</div>
+      <ul><li>植物辨識（每月 10 次）</li><li>澆水提醒</li><li>成長日記</li><li>植物社群</li></ul>
+      <span class="btn" style="height:32px;padding:0 12px">確定</span>
+    </div>
+    <div class="plan">
+      <h3>進階版 月繳 <span class="tag">最多人選擇</span></h3>
+      <div class="price">NT$90 / 月</div>
+      <ul><li>無限次植物辨識</li><li>澆水、施肥、換盆提醒</li><li>光照偵測</li><li>病蟲害診斷</li><li>成長日記＋雲端備份</li><li>植物社群</li></ul>
+      <span class="btn dark" style="height:46px;padding:0 30px">確認購買</span>
+    </div>
+    <div class="plan">
+      <h3>進階版 年繳（省 NT$190）</h3>
+      <div class="price">NT$890 / 年</div>
+      <ul><li>包含進階版所有功能</li><li>每月一次專家線上諮詢</li><li>專屬年費會員徽章</li></ul>
+      <span class="btn" style="height:38px;padding:0 8px;border-radius:19px">Go →</span>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="sec-title">常見問題 FAQ</div>
+  <dl class="faq">
+    <dt>Q：芽芽可以辨識多肉植物嗎？</dt>
+    <dd>A：可以，目前資料庫包含 300 種以上的多肉與仙人掌。</dd>
+    <dt>Q：沒有網路的時候可以用嗎？</dt>
+    <dd>A：澆水提醒與成長日記可以離線使用，植物辨識與病蟲害診斷需要連網。</dd>
+    <dt>Q：進階版要怎麼取消？</dt>
+    <dd>A：請到手機的 App Store 或 Google Play 訂閱管理頁面取消，取消後仍可使用到當期結束。</dd>
+    <dt>Q：一個帳號可以在幾台裝置登入？</dt>
+    <dd>A：最多 3 台，資料會自動同步。</dd>
+    <dt>Q：辨識錯誤怎麼辦？</dt>
+    <dd>A：可以在辨識結果頁按「回報錯誤」，我們的植物專家會在 48 小時內人工確認。</dd>
+  </dl>
+
+  <!-- CTA -->
+  <div class="cta">
+    <h2>還在等什麼？現在就開始，讓你的植物活得更好！</h2>
+    <span class="btn" style="height:40px;padding:0 14px">iOS 下載</span>
+    <span class="btn dark" style="height:33px;padding:0 22px;border-radius:12px">Android 版</span>
+    <div class="img" style="width:90px;height:90px">QR Code</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="foot">
+    <a href="#">關於我們</a><a href="#">徵才資訊</a><a href="#">媒體報導</a><a href="#">合作提案</a><a href="#">植物百科</a><a href="#">部落格</a><a href="#">使用條款</a><a href="#">隱私權政策</a><a href="#">Cookie 政策</a><a href="#">聯絡客服</a><a href="#">FB</a><a href="#">IG</a><a href="#">LINE</a><a href="#">YouTube</a>
+    <span>客服信箱：hello@sprout-app.example</span>
+    <div class="copy">© 2026 Sprout Inc. All Rights Reserved. 芽芽 Sprout 為虛構品牌，僅供課程練習使用。</div>
+  </div>
+
+</div>
+</body>
+</html>

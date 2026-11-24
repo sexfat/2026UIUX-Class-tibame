@@ -1,47 +1,2070 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>單元 8：元件、樣式與設計系統概念</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Helvetica Neue", Arial, sans-serif; background: #f4f4f4; color: #222; }
-    .slide { width: 100%; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; border-bottom: 2px solid #ddd; background: #fff; }
-    .slide:nth-child(even) { background: #f9f9f9; }
-    .slide-number { font-size: 12px; color: #aaa; margin-bottom: 16px; align-self: flex-start; }
-    h1 { font-size: 48px; font-weight: 700; color: #111; margin-bottom: 16px; text-align: center; }
-    h2 { font-size: 32px; font-weight: 600; color: #333; margin-bottom: 24px; }
-    p { font-size: 18px; line-height: 1.8; color: #555; max-width: 720px; text-align: center; }
-    ul { font-size: 18px; line-height: 2; color: #444; max-width: 680px; padding-left: 24px; align-self: flex-start; }
-    .tag { font-size: 13px; background: #222; color: #fff; padding: 4px 12px; border-radius: 20px; margin-bottom: 20px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 8 · 介面視覺基礎：版面、排版、色彩與一致性</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #fbfbfd;
+  --dark:    #1d1d1f;
+  --muted:   #86868b;
+  --accent:  #0066cc;
+  --accent2: #0071e3;
+  --accent3: #4094ff;
+  --surface: #f5f5f7;
+  --card:    #e8e8ed;
+  --border:  #d2d2d7;
+  --px: clamp(48px, 7vw, 112px);
+  --py: 52px;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Progress bar ──────────────────────── */
+#prog {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.55s cubic-bezier(.4,0,.2,1);
+  z-index: 200;
+  border-radius: 0 1px 1px 0;
+}
+
+/* ── Slide base ────────────────────────── */
+#deck { position: relative; width: 100%; height: 100vh; }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--py) var(--px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: opacity .5s cubic-bezier(.4,0,.2,1),
+              transform .5s cubic-bezier(.4,0,.2,1),
+              visibility 0s .5s;
+  overflow: hidden;
+}
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity .5s cubic-bezier(.4,0,.2,1),
+              transform .5s cubic-bezier(.4,0,.2,1),
+              visibility 0s 0s;
+}
+
+/* ── Layout regions ──────────────────────── */
+.slide-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  height: 28px;
+}
+
+.slide-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  height: 28px;
+}
+
+/* ── Header elements ─────────────────────── */
+.unit-pill {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(0,102,204,.09);
+  padding: 4px 11px;
+  border-radius: 20px;
+}
+
+.slide-num {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--border);
+  letter-spacing: .04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Footer elements ─────────────────────── */
+.course-label {
+  font-size: 11px;
+  color: var(--border);
+  letter-spacing: .02em;
+}
+
+.dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  cursor: pointer;
+}
+.dot.on {
+  background: var(--accent);
+  width: 16px;
+  border-radius: 2.5px;
+}
+
+/* ── Typography ─────────────────────────── */
+.overline {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+
+.divider {
+  width: 40px; height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin-bottom: 26px;
+  margin-top: 4px;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 3.8vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -.045em;
+  line-height: 1.1;
+  color: var(--dark);
+}
+
+h2 {
+  font-size: clamp(.9rem, 1.5vw, 1.3rem);
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.65;
+  letter-spacing: -.01em;
+  margin-top: 14px;
+}
+
+/* ── Cover slide ────────────────────────── */
+.cover-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+.cover-eyebrow::before {
+  content: '';
+  display: block;
+  width: 28px; height: 1px;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+.cover-title {
+  font-size: clamp(2.4rem, 5.2vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -.055em;
+  line-height: 1.04;
+  color: var(--dark);
+  margin-bottom: 22px;
+}
+
+.cover-sub {
+  font-size: clamp(.9rem, 1.5vw, 1.25rem);
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.6;
+  letter-spacing: -.01em;
+  margin-bottom: 48px;
+}
+
+.cover-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.meta-dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+/* ── Agenda cards ────────────────────────── */
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.agenda-card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 28px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid transparent;
+  transition: border-color .2s;
+}
+.agenda-card:hover { border-color: var(--border); }
+
+.a-step {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.a-time {
+  font-size: clamp(.85rem, 1.25vw, 1.1rem);
+  font-weight: 600;
+  color: var(--dark);
+  line-height: 1.35;
+}
+
+.a-desc {
+  font-size: clamp(.78rem, 1.05vw, .95rem);
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 2px;
+}
+
+/* ── Bullet list ─────────────────────────── */
+.blist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 36px;
+}
+
+.blist li {
+  font-size: clamp(.88rem, 1.3vw, 1.15rem);
+  color: var(--dark);
+  line-height: 1.65;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-radius: 12px;
+  transition: background .2s;
+}
+.blist li:hover { background: var(--card); }
+
+.blist li::before {
+  content: attr(data-n);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(0,102,204,.1);
+  padding: 2px 7px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  letter-spacing: .04em;
+}
+
+.blist.plain li::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: .55em;
+  padding: 0;
+}
+
+.blist .hl {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Background number ───────────────────── */
+.bg-n {
+  position: absolute;
+  right: calc(var(--px) - 16px);
+  top: 50%;
+  transform: translateY(-52%);
+  font-size: clamp(140px, 21vw, 260px);
+  font-weight: 800;
+  color: var(--surface);
+  letter-spacing: -.1em;
+  line-height: 1;
+  z-index: 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+.slide-head, .slide-body, .slide-foot { position: relative; z-index: 1; }
+
+/* ── Layer badge ─────────────────────────── */
+.layer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(0,102,204,.08);
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+  width: fit-content;
+}
+
+/* ── Controls ────────────────────────────── */
+#ctrls {
+  position: fixed;
+  bottom: 28px;
+  right: clamp(36px, 5vw, 80px);
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+}
+
+#ctrls button {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(29,29,31,.06);
+  color: var(--dark);
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, transform .15s;
+}
+#ctrls button:hover { background: rgba(29,29,31,.12); transform: scale(1.06); }
+#ctrls button:active { transform: scale(.94); }
+#ctrls.dark button { background: rgba(255,255,255,.12); color: #f5f5f7; }
+#ctrls.dark button:hover { background: rgba(255,255,255,.2); }
+
+/* ── Quote block ─────────────────────────── */
+.quote-block {
+  border-left: 3px solid var(--accent);
+  padding: 16px 22px;
+  background: rgba(0,102,204,.05);
+  border-radius: 0 12px 12px 0;
+  margin-top: 28px;
+  margin-bottom: 10px;
+  font-size: clamp(.88rem, 1.25vw, 1.1rem);
+  line-height: 1.7;
+  color: var(--dark);
+}
+
+/* ── Two-column layout ───────────────────── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 28px;
+}
+
+/* ── Principle card grid ─────────────────── */
+.principle-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.p-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 18px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid transparent;
+  transition: border-color .2s, transform .2s;
+}
+.p-card:hover { border-color: var(--border); transform: translateY(-2px); }
+
+.p-card-num {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.p-card-title {
+  font-size: clamp(.82rem, 1.1vw, 1rem);
+  font-weight: 600;
+  color: var(--dark);
+  line-height: 1.3;
+}
+
+.p-card-desc {
+  font-size: clamp(.72rem, .95vw, .88rem);
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 4px;
+}
+
+/* ── Law demo visualization ──────────────── */
+.demo-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.demo-box {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+/* Proximity demo */
+.prox-demo { gap: 20px; }
+.dot-group { display: flex; gap: 4px; flex-direction: row; }
+.dot-group span {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--accent);
+  display: block;
+}
+.dot-single {
+  display: flex; flex-direction: column; gap: 4px; align-items: center;
+}
+.dot-single span {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--muted);
+  display: block;
+}
+
+/* Closure demo */
+.circle-open {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 4px solid var(--accent);
+  border-right-color: transparent;
+}
+
+/* Figure-ground demo */
+.fg-box {
+  width: 80px; height: 60px;
+  background: var(--dark);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.fg-box::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  background: #fff;
+  border-radius: 6px;
+}
+
+/* Fitts demo */
+.btn-small {
+  background: var(--muted); color: #fff;
+  border-radius: 6px; padding: 6px 10px;
+  font-size: 11px; font-weight: 600;
+}
+.btn-large {
+  background: var(--accent); color: #fff;
+  border-radius: 10px; padding: 14px 28px;
+  font-size: 14px; font-weight: 600;
+}
+
+/* Progress bar demo */
+.progress-demo {
+  width: 220px;
+}
+.progress-track {
+  height: 8px;
+  background: var(--card);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+}
+.progress-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ── Dark slide variant ──────────────────── */
+.slide.dark { background: #1d1d1f; }
+.slide.dark h1 { color: #f5f5f7; }
+.slide.dark h2 { color: #86868b; }
+.slide.dark .overline { color: #4094ff; }
+.slide.dark .divider { background: #4094ff; }
+.slide.dark .layer-badge { background: rgba(64,148,255,.12); color: #4094ff; }
+.slide.dark .bg-n { color: #2c2c2e; }
+.slide.dark .blist li { background: rgba(255,255,255,.05); color: #f5f5f7; }
+.slide.dark .blist li:hover { background: rgba(255,255,255,.09); }
+.slide.dark .unit-pill { background: rgba(64,148,255,.15); color: #4094ff; }
+.slide.dark .slide-num { color: #48484a; }
+.slide.dark .course-label { color: #3a3a3c; }
+.slide.dark .dot { background: #3a3a3c; }
+.slide.dark .dot.on { background: #4094ff; }
+.slide.dark .quote-block { background: rgba(64,148,255,.08); border-color: #4094ff; color: #f5f5f7; }
+.slide.dark .p-card { background: rgba(255,255,255,.05); }
+.slide.dark .p-card:hover { border-color: #48484a; }
+.slide.dark .p-card-title { color: #f5f5f7; }
+.slide.dark .cover-eyebrow { color: #86868b; }
+.slide.dark .cover-title { color: #f5f5f7; }
+.slide.dark .cover-sub { color: #86868b; }
+.slide.dark .cover-meta { color: #86868b; }
+.slide.dark .meta-dot { background: #48484a; }
+.slide.dark .agenda-card { background: rgba(255,255,255,.05); }
+.slide.dark .a-time { color: #f5f5f7; }
+
+/* ── Checklist ───────────────────────────── */
+.checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checklist li {
+  font-size: clamp(.8rem, 1.15vw, 1rem);
+  color: var(--dark);
+  line-height: 1.55;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  user-select: none;
+}
+
+.checklist li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 2px solid var(--border);
+  background: #fff;
+  margin-top: 1px;
+  transition: background .15s, border-color .15s;
+}
+
+.checklist li.checked {
+  background: rgba(0,102,204,.06);
+  border-color: rgba(0,102,204,.3);
+  color: var(--muted);
+}
+
+.checklist li.checked::before {
+  background: var(--accent);
+  border-color: var(--accent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M1 5l3.5 3.5L11 1' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px;
+}
+
+/* ── Image layout (text + image side by side) ── */
+.img-layout {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: 40px;
+  align-items: center;
+  flex: 1;
+}
+
+.img-layout .text-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide-img {
+  max-height: 320px;
+  max-width: 500px;
+  width: 500px;
+  object-fit: contain;
+  border-radius: 14px;
+  background: transparent;
+}
+
+.slide-img.on-dark {
+  border-radius: 14px;
+  filter: brightness(.95);
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  :root { --px: 20px; --py: 24px; }
+
+  /* 手機版 slide 可上下捲動 */
+  html, body { overflow: auto; height: auto; }
+  #deck { height: auto; }
+  .slide {
+    position: relative;
+    inset: unset;
+    min-height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: none !important;
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+  }
+  .slide.active {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .slide-body { justify-content: flex-start; padding-top: 12px; padding-bottom: 16px; }
+  .course-label { display: none; }
+
+  /* 封面 */
+  .cover-title { font-size: 2.2rem; }
+  .cover-sub { font-size: .9rem; margin-bottom: 20px; }
+  .cover-meta { font-size: 11px; gap: 10px; }
+
+  /* 標題縮小 */
+  h1 { font-size: clamp(1.5rem, 6vw, 2.2rem); }
+  h2 { font-size: clamp(.85rem, 3.5vw, 1.1rem); margin-top: 10px; }
+
+  /* 大綱 */
+  .agenda-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+  .agenda-card { padding: 18px 16px 20px; }
+
+  /* 原則卡片 */
+  .principle-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 16px; }
+  .p-card { padding: 14px 12px 16px; }
+
+  /* 圖文版面：圖在下、文在上 */
+  .img-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .slide-img {
+    width: 100%;
+    max-width: 100%;
+    max-height: 220px;
+    order: 2;
+  }
+  .img-layout .text-col { order: 1; }
+
+  /* 列表 */
+  .blist { margin-top: 14px; gap: 8px; }
+  .blist li { font-size: .9rem; padding: 10px 14px; }
+
+  /* 雙欄變單欄 */
+  .two-col { grid-template-columns: 1fr; gap: 16px; }
+
+  /* 引言 */
+  .quote-block { font-size: .9rem; padding: 12px 16px; margin-top: 14px; }
+
+  /* 背景大字隱藏 */
+  .bg-n { display: none; }
+
+  /* 控制按鈕 */
+  #ctrls { bottom: 16px; right: 16px; gap: 6px; }
+  #ctrls button { width: 36px; height: 36px; font-size: 13px; }
+
+  /* dots 縮小 */
+  .dot { width: 4px; height: 4px; }
+  .dot.on { width: 12px; }
+}
+
+/* ════════ Unit 08 · 視覺基礎專用元件 ════════ */
+.agenda-grid.four { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+.viz-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 26px;
+  align-items: stretch;
+}
+.viz-row.wide-left { grid-template-columns: 1.15fr .85fr; }
+
+.viz {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.viz-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.viz-label.good { color: #1a7f37; }
+.viz-label.bad  { color: #cf222e; }
+
+.note {
+  font-size: clamp(.8rem, 1.1vw, .98rem);
+  color: var(--dark);
+  line-height: 1.7;
+}
+.note .hl { color: var(--accent); font-weight: 600; }
+.note-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.note-list li {
+  font-size: clamp(.8rem, 1.1vw, .98rem);
+  line-height: 1.6;
+  color: var(--dark);
+  padding-left: 16px;
+  position: relative;
+}
+.note-list li::before {
+  content: '';
+  position: absolute; left: 0; top: .6em;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+}
+.note-list .hl { color: var(--accent); font-weight: 600; }
+
+/* 8pt spacing scale */
+.sp-row { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sp-row b { width: 38px; color: var(--dark); font-weight: 600; }
+.sp-bar { height: 14px; background: var(--accent); border-radius: 3px; }
+.sp-bar.half { background: var(--accent3); opacity: .7; }
+.sp-row.bad b { color: #cf222e; }
+.sp-row.bad .sp-bar { background: #cf222e; opacity: .55; }
+
+/* Proximity demo */
+.prox-wrap { display: flex; gap: 20px; justify-content: center; }
+.prox-card { background: #fff; border-radius: 12px; padding: 16px; width: 170px; display: flex; flex-direction: column; border: 1px solid var(--border); }
+.ln { height: 8px; border-radius: 4px; background: var(--card); }
+.ln.t { height: 11px; width: 70%; background: var(--dark); opacity: .8; }
+.ln.s { width: 85%; }
+.ln.xs { width: 55%; }
+.prox-card.bad .ln { margin-bottom: 10px; }
+.prox-card.bad hr { border: none; border-top: 1px solid var(--border); margin: 0 0 10px; }
+.prox-card.good .grp { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.prox-card.good .grp:last-child { margin-bottom: 0; }
+.dim { font-size: 10px; color: var(--accent); font-weight: 600; text-align: center; margin-top: 8px; }
+
+/* Responsive grid demo */
+.grid-demo { display: flex; gap: 6px; height: 74px; padding: 0 14px; background: #fff; border-radius: 10px; border: 1px solid var(--border); }
+.grid-demo span { flex: 1; background: rgba(0,102,204,.14); border-left: 1px solid rgba(0,102,204,.25); border-right: 1px solid rgba(0,102,204,.25); }
+.grid-demo.mobile { width: 140px; padding: 0 16px; gap: 10px; height: 120px; align-self: center; }
+.grid-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
+.grid-key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+/* F / Z pattern */
+.scan-wrap { display: flex; gap: 20px; justify-content: center; }
+.scan-wrap figure { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.scan-wrap figcaption { font-size: 12px; font-weight: 600; color: var(--dark); }
+.scan-wrap svg { width: 150px; height: 180px; background: #fff; border-radius: 10px; border: 1px solid var(--border); }
+
+/* Type scale */
+.type-scale { display: flex; flex-direction: column; gap: 10px; }
+.ts-row { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; gap: 14px; border-bottom: 1px solid var(--card); padding-bottom: 8px; }
+.ts-row:last-child { border-bottom: none; }
+.ts-meta { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.4; }
+.ts-meta b { color: var(--accent); font-weight: 700; display: block; font-size: 12px; }
+
+/* Line height demo */
+.lh-sample { font-size: 14px; color: var(--dark); background: #fff; border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+.lh-sample.tight { line-height: 1.05; }
+.lh-sample.good { line-height: 1.6; max-width: 30em; }
+.lh-sample.long { line-height: 1.6; }
+
+/* Tabular figures */
+.num-col { font-size: 18px; font-weight: 500; color: var(--dark); text-align: right; background: #fff; border-radius: 10px; padding: 12px 18px; border: 1px solid var(--border); line-height: 1.7; }
+.num-col.prop { font-variant-numeric: proportional-nums; }
+.num-col.tab  { font-variant-numeric: tabular-nums; }
+.font-pair { display: flex; flex-direction: column; gap: 4px; background: #fff; border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+.font-pair .fp-name { font-size: 11px; color: var(--muted); }
+.font-pair .fp-sample { font-size: 20px; font-weight: 600; color: var(--dark); font-family: 'Inter', "PingFang TC", "Noto Sans TC", sans-serif; }
+
+/* 60-30-10 */
+.ratio-bar { display: flex; height: 44px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.ratio-bar div { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.mini-ui { background: #f5f5f7; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
+.mini-ui .bar { background: #1f3a5f; height: 30px; display: flex; align-items: center; padding: 0 12px; gap: 6px; }
+.mini-ui .bar i { width: 34px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.5); display: block; }
+.mini-ui .body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.mini-ui .cta { align-self: flex-start; background: #ff7a1a; color: #fff; font-size: 11px; font-weight: 700; padding: 7px 14px; border-radius: 7px; margin-top: 4px; }
+
+/* Swatches */
+.sw-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.sw { display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sw i { display: block; width: 46px; height: 34px; border-radius: 8px; border: 1px solid rgba(0,0,0,.06); }
+.sw.sm i { width: 30px; height: 30px; }
+.sw b { color: var(--dark); font-weight: 600; font-size: 11px; }
+.color-group { display: flex; flex-direction: column; gap: 8px; }
+.color-group h4 { font-size: 12px; font-weight: 700; color: var(--dark); }
+.color-group h4 span { font-weight: 400; color: var(--muted); margin-left: 6px; }
+
+/* Contrast */
+.contrast-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.cbox { border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--border); }
+.cbox .ct { font-size: 15px; font-weight: 500; }
+.cbox .cr { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pass { color: #1a7f37; }
+.fail { color: #cf222e; }
+
+/* Atomic design */
+.atomic { display: flex; align-items: stretch; gap: 10px; margin-top: 4px; }
+.atom-step { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.atom-step .an { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.atom-step .ad { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.atom-arrow { align-self: center; color: var(--border); font-size: 18px; }
+.ui-btn { background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 6px; }
+.ui-input { border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 11px; color: var(--muted); background: #fff; }
+.ui-search { display: flex; gap: 6px; align-items: center; }
+.ui-header { display: flex; justify-content: space-between; align-items: center; width: 100%; background: var(--surface); padding: 6px 8px; border-radius: 8px; gap: 6px; }
+.ui-logo { width: 22px; height: 22px; border-radius: 6px; background: var(--dark); }
+
+/* Pitfalls */
+.pit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 30px; }
+.pit { background: var(--surface); border-radius: 14px; padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 10px; border: 1px solid transparent; }
+.pit-x { font-size: clamp(.82rem, 1.1vw, 1rem); font-weight: 600; color: var(--dark); line-height: 1.45; display: flex; gap: 8px; }
+.pit-x::before { content: '✕'; color: #cf222e; font-weight: 700; flex-shrink: 0; }
+.pit-fix { font-size: clamp(.75rem, 1vw, .9rem); color: var(--muted); line-height: 1.6; display: flex; gap: 8px; border-top: 1px solid var(--card); padding-top: 10px; }
+.pit-fix::before { content: '✓'; color: #1a7f37; font-weight: 700; flex-shrink: 0; }
+
+/* Pitfall demo (bad vs good mini illustrations) */
+.pit-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pd { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 22px 12px 12px; height: 150px; position: relative; overflow: hidden; }
+.pd.bad  { border-color: rgba(207,34,46,.35); }
+.pd.good { border-color: rgba(26,127,55,.35); }
+.pd-tag { position: absolute; top: 5px; left: 8px; font-size: 11px; font-weight: 700; }
+.pd.bad .pd-tag  { color: #cf222e; }
+.pd.good .pd-tag { color: #1a7f37; }
+.pd-stack { display: flex; flex-direction: column; gap: 6px; }
+.pd-stack .ln { height: 6px; }
+.pd-stack .ln.t { height: 8px; }
+.pd-btn { width: 52px; height: 14px; border-radius: 4px; background: var(--muted); }
+.pd.good .pd-btn { background: var(--dark); }
+.pd-blk { height: 14px; width: 80%; border-radius: 3px; background: var(--card); }
+.pd-gap { display: flex; align-items: center; font-size: 9px; font-weight: 700; padding-left: 4px; border-left: 2px solid; margin-left: 30%; line-height: 1; font-variant-numeric: tabular-nums; }
+.pd.bad .pd-gap  { color: #cf222e; border-color: rgba(207,34,46,.5); }
+.pd.good .pd-gap { color: #1a7f37; border-color: rgba(26,127,55,.5); }
+.pd-row { display: flex; flex-direction: column; gap: 4px; padding: 0 2px; }
+.pd-row.boxed { border: 1px solid #888; border-radius: 6px; padding: 5px 6px; }
+.pd-row.tint { background: var(--surface); border-radius: 6px; padding: 6px; margin: 0 -4px; }
+
+.pd-type { display: flex; flex-direction: column; gap: 6px; line-height: 1.2; color: var(--dark); }
+.pd-para { font-size: 11px; color: var(--dark); margin: 0; }
+.pd .pd-tag { white-space: nowrap; }
+
+/* Part 3 / 4 pitfall demos */
+.pd-swatch { border-radius: 8px; padding: 10px; height: 100%; display: flex; flex-direction: column; gap: 5px; }
+.pd-swatch b { font-size: 12px; }
+.pd-swatch span { font-size: 10px; line-height: 1.5; }
+.pd-swatch em { font-style: normal; font-size: 9px; opacity: .7; margin-top: auto; font-variant-numeric: tabular-nums; }
+.pd-ui { display: flex; flex-direction: column; gap: 5px; }
+.pd-ui-bar { height: 14px; border-radius: 4px; }
+.pd-chip { align-self: flex-start; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+.pd-ui .ln { height: 6px; }
+.pd-ui-btns { display: flex; gap: 5px; margin-top: 4px; }
+.pd-ui-btns span { flex: 1; font-size: 9px; font-weight: 700; color: #fff; text-align: center; padding: 4px 0; border-radius: 4px; }
+.pd-form { display: flex; flex-direction: column; gap: 6px; }
+.pd-in { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--muted); border: 1.5px solid var(--border); border-radius: 5px; padding: 0 7px; height: 24px; background: #fff; }
+.pd-in i { font-style: normal; font-weight: 700; }
+.pd-in em { font-style: normal; font-size: 9px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.pd.bad .pd-in em { color: #cf222e; }
+.pd.good .pd-in em { color: #1a7f37; }
+.pd-err { font-size: 9px; font-weight: 600; color: #cf222e; }
+.pd-cb { font-size: 9px; color: var(--muted); line-height: 1.4; }
+.pd-radius { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pd-radius span { font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.pd-r-card { grid-column: span 2; height: 36px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+.pd-r-btn { height: 24px; background: var(--dark); color: #fff; }
+.pd-r-in { grid-column: span 2; height: 24px; border: 1px solid var(--border); color: var(--muted); background: #fff; }
+.pd-icons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; justify-items: center; margin-top: 18px; }
+.pd-icons svg { width: 26px; height: 26px; }
+.pd-cap { display: block; font-size: 9px; color: var(--muted); text-align: center; margin-top: 22px; }
+
+/* Workshop stages */
+.stage { background: var(--surface); border-radius: 16px; padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 10px; }
+.stage-tag { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.stage h3 { font-size: clamp(.95rem, 1.35vw, 1.2rem); font-weight: 700; color: var(--dark); letter-spacing: -.01em; }
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: #fff; border: 1px solid var(--border); color: var(--dark); }
+
+@media (max-width: 768px) {
+  .agenda-grid.four { grid-template-columns: 1fr 1fr; }
+  .viz-row, .viz-row.wide-left { grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
+  .pit-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+  .prox-wrap, .scan-wrap { flex-wrap: wrap; }
+  .atomic { flex-direction: column; }
+  .atom-arrow { transform: rotate(90deg); }
+  .ts-row { grid-template-columns: 84px 1fr; }
+  .contrast-grid { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-  <section class="slide">
-    <span class="tag">單元 8</span>
-    <h1>元件、樣式與設計系統概念</h1>
-    <p>UI 設計實作課程｜Figma × UX 原則 × AI 整合</p>
-  </section>
-  <section class="slide">
-    <span class="slide-number">02</span>
-    <h2>本堂課目標</h2>
-    <p>（內容待補充）</p>
-  </section>
-  <section class="slide">
-    <span class="slide-number">03</span>
-    <h2>課程內容</h2>
-    <p>（內容待補充）</p>
-  </section>
-  <section class="slide">
-    <span class="slide-number">04</span>
-    <h2>課程內容</h2>
-    <p>（內容待補充）</p>
-  </section>
-  <section class="slide">
-    <span class="slide-number">05</span>
-    <h2>本堂小結</h2>
-    <p>（內容待補充）</p>
-  </section>
+
+<div id="prog"></div>
+
+<div id="deck">
+
+  <!-- ─── Cover ─────────────────── -->
+  <div class="slide active">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">01 / 27</span>
+    </div>
+    <div class="slide-body">
+      <div class="cover-eyebrow">UI 設計實作課程 · 2026</div>
+      <h1 class="cover-title">介面視覺基礎</h1>
+      <p class="cover-sub">版面 · 排版 · 色彩 · 一致性<br>把資訊架構轉譯成「看得懂、做得出來」的畫面</p>
+      <div class="cover-meta">
+        <span>3 小時</span>
+        <span class="meta-dot"></span>
+        <span>27 張投影片</span>
+        <span class="meta-dot"></span>
+        <span>含實作練習</span>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── 課程大綱 ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">02 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Agenda</p>
+      <h1>課程大綱</h1>
+      <div class="agenda-grid four">
+        <div class="agenda-card">
+          <span class="a-step">Part 1</span>
+          <span class="a-time">版面配置<br>Layout &amp; Grid</span>
+          <span class="a-desc">8pt 間距系統、親密性、響應式網格與視覺動線</span>
+        </div>
+        <div class="agenda-card">
+          <span class="a-step">Part 2</span>
+          <span class="a-time">排版與字體<br>Typography</span>
+          <span class="a-desc">字級階梯、行高、每行字數與中西文混排</span>
+        </div>
+        <div class="agenda-card">
+          <span class="a-step">Part 3</span>
+          <span class="a-time">色彩系統<br>Color System</span>
+          <span class="a-desc">60-30-10、語意色命名與 WCAG 對比度</span>
+        </div>
+        <div class="agenda-card">
+          <span class="a-step">Part 4</span>
+          <span class="a-time">一致性與規範<br>Consistency</span>
+          <span class="a-desc">四個維度的一致性、原子設計與 Design Tokens</span>
+        </div>
+      </div>
+      <div class="quote-block" style="margin-top:22px">
+        最後 60 分鐘：<strong>Before / After 資訊層級重構練習</strong> ＋ 交件前的 UI 走查清單
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── 核心觀念 ──────────────── -->
+  <div class="slide dark">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">03 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Mindset</p>
+      <h1>視覺基礎<br>不等於美術天分</h1>
+      <div class="divider"></div>
+      <h2>這個單元練的是兩件事：把資訊架構「翻譯」成畫面，以及讓工程師做得出來</h2>
+      <ul class="blist plain" style="margin-top:24px">
+        <li><span class="hl">版面</span>：決定資訊放在哪裡、怎麼分組</li>
+        <li><span class="hl">排版</span>：決定使用者讀得快不快、讀不讀得懂</li>
+        <li><span class="hl">色彩</span>：決定哪裡該被注意、現在是什麼狀態</li>
+        <li><span class="hl">一致性</span>：讓一張張單頁變成一套可複用的系統</li>
+      </ul>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PART 1 · LAYOUT ═══════════ -->
+  <div class="slide dark">
+    <div class="bg-n">1</div>
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">04 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 1 · Layout &amp; Grid</p>
+      <h1>版面配置<br>建立視覺秩序與呼吸感</h1>
+      <div class="divider"></div>
+      <h2>畫面不是畫布，而是<strong style="color:#f5f5f7">有結構的容器</strong>。每一個位置、每一段留白，都要能直接對應到前端的排版邏輯。</h2>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── 8pt Grid ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">05 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Layout 01 · Spacing System</span>
+      <h1>8pt Grid 間距系統</h1>
+      <div class="viz-row wide-left">
+        <div class="viz">
+          <span class="viz-label good">用 8 的倍數，微調用 4</span>
+          <div class="sp-row"><b>4</b><div class="sp-bar half" style="width:12px"></div>微調：Icon 與文字間距</div>
+          <div class="sp-row"><b>8</b><div class="sp-bar" style="width:24px"></div>元件內部最小間距</div>
+          <div class="sp-row"><b>16</b><div class="sp-bar" style="width:48px"></div>內距 Padding、手機邊距</div>
+          <div class="sp-row"><b>24</b><div class="sp-bar" style="width:72px"></div>群組之間</div>
+          <div class="sp-row"><b>32</b><div class="sp-bar" style="width:96px"></div>區塊之間</div>
+          <div class="sp-row"><b>48</b><div class="sp-bar" style="width:144px"></div>大段落、Section 之間</div>
+          <span class="viz-label bad" style="margin-top:6px">隨手拉出來的數值</span>
+          <div class="sp-row bad"><b>13</b><div class="sp-bar" style="width:39px"></div></div>
+          <div class="sp-row bad"><b>27</b><div class="sp-bar" style="width:81px"></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li><span class="hl">為什麼是 8？</span>8 可以被 2、4 整除，在 @1x、@2x、@3x 等螢幕倍率下都能得到整數像素，不會出現模糊的半像素。</li>
+            <li><span class="hl">4pt 是微調用的</span>：Icon 與文字、標籤內距這類小空間才用 4。</li>
+            <li>數值有規律，工程師就能直接對應到 CSS 的 spacing token，不用逐一量測。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Proximity ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">06 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Layout 02 · Proximity</span>
+      <h1>親密性：用留白分組</h1>
+      <h2>內距（Padding）要小於外距（Margin）：同一組資訊靠近，不同組拉開</h2>
+      <div class="viz-row">
+        <div class="viz" style="align-items:center">
+          <span class="viz-label bad" style="align-self:flex-start">間距都一樣，只好畫線分隔</span>
+          <div class="prox-card bad">
+            <div class="ln t"></div><div class="ln s"></div><hr>
+            <div class="ln t"></div><div class="ln xs"></div><hr>
+            <div class="ln t"></div><div class="ln s"></div>
+          </div>
+        </div>
+        <div class="viz" style="align-items:center">
+          <span class="viz-label good" style="align-self:flex-start">組內 6–8，組間 24：不需要框線</span>
+          <div class="prox-card good">
+            <div class="grp"><div class="ln t"></div><div class="ln s"></div></div>
+            <div class="grp"><div class="ln t"></div><div class="ln xs"></div></div>
+            <div class="grp"><div class="ln t"></div><div class="ln s"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="quote-block" style="margin-top:20px">先試著只用「距離」區分群組，真的不夠時才加分隔線或底色。這也是 Unit 07 完形心理學「接近性」的直接應用。</div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Responsive Grid ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">07 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Layout 03 · Responsive Grid</span>
+      <h1>響應式網格三要素</h1>
+      <div class="viz-row wide-left">
+        <div class="viz">
+          <span class="viz-label">Desktop · 12 欄</span>
+          <div class="grid-demo"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div style="display:flex;gap:24px;align-items:flex-end;margin-top:6px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <span class="viz-label">Mobile · 4 欄 / 16pt 邊距</span>
+              <div class="grid-demo mobile"><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="grid-key" style="flex-direction:column;gap:8px">
+              <span><i style="background:rgba(0,102,204,.25)"></i><b>Column 欄</b>：內容實際放置的區域</span>
+              <span><i style="background:#fff;border:1px solid var(--border)"></i><b>Gutter 槽</b>：欄與欄之間的間距</span>
+              <span><i style="background:var(--card)"></i><b>Margin 邊距</b>：內容與螢幕邊緣的距離</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li>Desktop 常用 <span class="hl">12 欄</span>：可以切成 2、3、4、6 等分，排版彈性大。</li>
+            <li>Mobile 常用 <span class="hl">4 欄＋16pt 左右邊距</span>：畫面窄，結構要更單純。</li>
+            <li>元件寬度跟著「欄數」走，而不是寫死像素，轉成 RWD 時才不會整頁重做。</li>
+            <li>Figma：選取 Frame → Layout grid → Columns。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Scan patterns ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">08 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Layout 04 · Visual Flow</span>
+      <h1>視覺動線與層級</h1>
+      <div class="viz-row">
+        <div class="viz" style="align-items:center">
+          <div class="scan-wrap">
+            <figure>
+              <svg viewBox="0 0 150 180" aria-label="F 型掃視">
+                <rect x="14" y="16" width="122" height="10" rx="3" fill="#d2d2d7"/>
+                <rect x="14" y="40" width="90" height="8" rx="3" fill="#e8e8ed"/>
+                <rect x="14" y="60" width="122" height="8" rx="3" fill="#e8e8ed"/>
+                <rect x="14" y="80" width="70" height="8" rx="3" fill="#e8e8ed"/>
+                <rect x="14" y="100" width="40" height="8" rx="3" fill="#e8e8ed"/>
+                <rect x="14" y="120" width="40" height="8" rx="3" fill="#e8e8ed"/>
+                <rect x="14" y="140" width="40" height="8" rx="3" fill="#e8e8ed"/>
+                <path d="M18 21 H132 M18 21 V160 M18 64 H96" stroke="#0066cc" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+              </svg>
+              <figcaption>F 型：文字密集頁</figcaption>
+            </figure>
+            <figure>
+              <svg viewBox="0 0 150 180" aria-label="Z 型掃視">
+                <rect x="14" y="16" width="30" height="14" rx="3" fill="#1d1d1f"/>
+                <rect x="96" y="18" width="40" height="10" rx="3" fill="#d2d2d7"/>
+                <rect x="30" y="66" width="90" height="40" rx="6" fill="#e8e8ed"/>
+                <rect x="14" y="148" width="50" height="10" rx="3" fill="#d2d2d7"/>
+                <rect x="90" y="142" width="46" height="22" rx="6" fill="#0066cc"/>
+                <path d="M20 23 H128 L24 152 H124" stroke="#0066cc" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>
+              </svg>
+              <figcaption>Z 型：行銷落地頁</figcaption>
+            </figure>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li><span class="hl">F 型</span>：新聞、文章、搜尋結果。視線先掃最上方，再沿左側往下，所以重要關鍵字要放在每行開頭。</li>
+            <li><span class="hl">Z 型</span>：資訊少、視覺強的頁面。左上 Logo → 右上導覽 → 中間主視覺 → 右下 CTA。</li>
+            <li><span class="hl">首屏 Above the Fold</span>：不捲動就看得到的範圍，要放「這是什麼＋我能做什麼」，資訊權重最高。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Part 1 pitfalls ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">09 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 1 · 新手常見地雷</p>
+      <h1>版面配置：這些先避開</h1>
+      <div class="pit-grid">
+        <div class="pit">
+          <span class="pit-x">害怕留白，資訊塞太滿</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-stack" style="gap:3px">
+                <div class="ln t"></div><div class="ln s"></div><div class="ln"></div><div class="ln xs"></div><div class="ln s"></div><div class="ln"></div><div class="ln xs"></div><div class="ln s"></div><div class="pd-btn" style="margin-top:2px"></div><div class="pd-btn" style="margin-top:0"></div>
+              </div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-stack">
+                <div class="ln t"></div><div class="ln s" style="margin-top:-4px"></div>
+                <div class="ln xs" style="margin-top:8px"></div>
+                <div class="pd-btn" style="margin-top:14px"></div>
+              </div>
+            </div>
+          </div>
+          <span class="pit-fix">留白本身就是一種分組工具。先刪掉不必要的資訊，再用 24 / 32 的間距讓區塊呼吸。</span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">間距隨意拉，出現 13px、27px</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-stack" style="gap:0">
+                <div class="pd-blk"></div><span class="pd-gap" style="height:13px">13</span>
+                <div class="pd-blk" style="margin-left:5px"></div><span class="pd-gap" style="height:27px">27</span>
+                <div class="pd-blk" style="margin-left:2px"></div><span class="pd-gap" style="height:9px">9</span>
+                <div class="pd-blk"></div>
+              </div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-stack" style="gap:0">
+                <div class="pd-blk"></div><span class="pd-gap" style="height:16px">16</span>
+                <div class="pd-blk"></div><span class="pd-gap" style="height:16px">16</span>
+                <div class="pd-blk"></div><span class="pd-gap" style="height:16px">16</span>
+                <div class="pd-blk"></div>
+              </div>
+            </div>
+          </div>
+          <span class="pit-fix">所有間距限定在 4 / 8 的倍數，用 Auto Layout 的 gap 與 padding 鎖住數值。</span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">過度使用框線與陰影區隔區塊</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-stack" style="gap:5px">
+                <div class="pd-row boxed" style="box-shadow:2px 2px 4px rgba(0,0,0,.25)"><div class="ln t"></div><div class="ln xs"></div></div>
+                <div class="pd-row boxed" style="border-width:2px;border-radius:0"><div class="ln t"></div><div class="ln xs"></div></div>
+                <div class="pd-row boxed" style="border-style:dashed;box-shadow:0 3px 6px rgba(0,0,0,.2)"><div class="ln t"></div><div class="ln xs"></div></div>
+              </div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-stack" style="gap:12px">
+                <div class="pd-row"><div class="ln t"></div><div class="ln xs"></div></div>
+                <div class="pd-row"><div class="ln t"></div><div class="ln xs"></div></div>
+                <div class="pd-row tint"><div class="ln t"></div><div class="ln xs"></div></div>
+              </div>
+            </div>
+          </div>
+          <span class="pit-fix">先用距離分組，其次用淺底色，最後才考慮框線。陰影保留給「浮起來」的元件。</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PART 2 · TYPOGRAPHY ═══════════ -->
+  <div class="slide dark">
+    <div class="bg-n">2</div>
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">10 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 2 · Typography</p>
+      <h1>排版與字體<br>決定介面的閱讀效率</h1>
+      <div class="divider"></div>
+      <h2>UI 介面中超過 70% 的資訊是文字</h2>
+      <ul class="blist plain" style="margin-top:24px">
+        <li><span class="hl">易讀性 Readability</span>：一整段文字讀起來順不順、累不累（行高、每行字數）</li>
+        <li><span class="hl">可辨識性 Legibility</span>：單一字元能不能被快速認出（字體、字級、對比）</li>
+      </ul>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Type scale ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">11 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Type 01 · Type Scale</span>
+      <h1>字級階梯</h1>
+      <div class="viz-row wide-left">
+        <div class="viz">
+          <div class="type-scale">
+            <div class="ts-row"><span class="ts-meta"><b>H1</b>32 / 40 · Bold</span><span style="font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.25">訂單總覽</span></div>
+            <div class="ts-row"><span class="ts-meta"><b>H2</b>24 / 32 · Semibold</span><span style="font-size:24px;font-weight:600;line-height:1.3">本月消費紀錄</span></div>
+            <div class="ts-row"><span class="ts-meta"><b>H3</b>20 / 28 · Semibold</span><span style="font-size:20px;font-weight:600;line-height:1.4">配送資訊</span></div>
+            <div class="ts-row"><span class="ts-meta"><b>Body</b>16 / 24 · Regular</span><span style="font-size:16px;line-height:1.5">商品將於 3 個工作天內送達指定地址。</span></div>
+            <div class="ts-row"><span class="ts-meta"><b>Caption</b>12 / 16 · Regular</span><span style="font-size:12px;color:var(--muted);line-height:1.4">最後更新：2026/11/24 14:30</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li>內文 <span class="hl">Body 是基準</span>：網頁通常 16px，資訊密集的 App 或後台可用 14px。</li>
+            <li>標題往上、輔助說明往下長出階層，<span class="hl">全站控制在 5 種字級以內</span>。</li>
+            <li>每一級都定義好「字級 / 行高 / 字重」，存成 Figma Text Styles。</li>
+            <li>層級主要靠<span class="hl">字級＋字重</span>拉開，不是靠換顏色。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Line height & measure ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">12 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Type 02 · Line Height &amp; Measure</span>
+      <h1>行高與每行字數</h1>
+      <div class="viz-row">
+        <div class="viz">
+          <span class="viz-label bad">行高 1.0：文字黏在一起</span>
+          <p class="lh-sample tight">介面中的文字是使用者理解功能的主要管道，行距過窄會讓眼睛在換行時找不到下一行的起點，閱讀速度明顯變慢。</p>
+          <span class="viz-label good">行高 1.6、每行約 30 字：讀起來輕鬆</span>
+          <p class="lh-sample good">介面中的文字是使用者理解功能的主要管道，行距過窄會讓眼睛在換行時找不到下一行的起點，閱讀速度明顯變慢。</p>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li><span class="hl">內文行高 1.4–1.6 倍</span>：例如 16px 字配 24px 行高（1.5）。</li>
+            <li><span class="hl">標題行高 1.2–1.3 倍</span>：字大，行距要收緊才不會鬆散。</li>
+            <li><span class="hl">每行字數 Measure</span>：中文約 25–35 字，英文約 45–75 字元。</li>
+            <li>寬螢幕上別讓文字撐滿整行，要限制文字區塊的最大寬度（max-width）。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Font pairing & tabular ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">13 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Type 03 · Font Pairing &amp; Figures</span>
+      <h1>中西文混排與數字等寬</h1>
+      <div class="viz-row">
+        <div class="viz">
+          <span class="viz-label">無襯線字體搭配（Sans-serif）</span>
+          <div class="font-pair"><span class="fp-name">中文 Noto Sans TC / PingFang TC ＋ 英文 Inter / SF Pro</span><span class="fp-sample">設定 Settings · 共 128 筆</span></div>
+          <ul class="note-list" style="margin-top:6px">
+            <li>中文字體內建的英文常偏窄或偏粗，所以英數另外指定字體。</li>
+            <li>兩套字體的 x-height 與字重要接近，混排時才不會忽大忽小。</li>
+          </ul>
+        </div>
+        <div class="viz">
+          <span class="viz-label">數字等寬 Tabular Figures</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><span class="viz-label bad">比例寬度</span><div class="num-col prop">$1,111.11<br>$8,808.00<br>$  417.50</div></div>
+            <div><span class="viz-label good">等寬 tnum</span><div class="num-col tab">$1,111.11<br>$8,808.00<br>$  417.50</div></div>
+          </div>
+          <p class="note">金額、數據儀表板、計時器一定要用等寬數字，小數點才會對齊，數字跳動時也不會左右晃。CSS：<code>font-variant-numeric: tabular-nums</code></p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Part 2 pitfalls ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">14 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 2 · 新手常見地雷</p>
+      <h1>排版：這些先避開</h1>
+      <div class="pit-grid">
+        <div class="pit">
+          <span class="pit-x">靠「換顏色」做資訊層級</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-type">
+                <span style="font-size:11px;color:#cf222e">本月消費紀錄</span>
+                <span style="font-size:11px;color:#0969da">共 12 筆訂單</span>
+                <span style="font-size:11px;color:#1a7f37">NT$ 3,280</span>
+                <span style="font-size:11px;color:#8250df">最後更新 11/24</span>
+              </div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-type">
+                <span style="font-size:15px;font-weight:700;color:#1d1d1f">本月消費紀錄</span>
+                <span style="font-size:11px;color:#1d1d1f">共 12 筆訂單</span>
+                <span style="font-size:18px;font-weight:700;color:#1d1d1f;font-variant-numeric:tabular-nums">NT$ 3,280</span>
+                <span style="font-size:9px;color:#86868b">最後更新 11/24</span>
+              </div>
+            </div>
+          </div>
+          <span class="pit-fix">先用字級與字重（Font Weight）拉開主次，顏色只做輔助。轉成黑白還分得出層級，才算成功。</span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">內文行距過窄，文字黏在一起</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕ 行高 1.0</span>
+              <p class="pd-para" style="line-height:1">植物每週澆水一次即可，夏季可增加頻率，冬季則要減少，避免根部積水腐爛。澆水前先用手指確認土壤表面是否乾燥，若底盤有積水，記得在半小時內倒掉。</p>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓ 行高 1.6</span>
+              <p class="pd-para" style="line-height:1.6">植物每週澆水一次即可，夏季可增加頻率，冬季則要減少，避免根部積水腐爛。澆水前先用手指確認土壤表面是否乾燥，若底盤有積水，記得在半小時內倒掉。</p>
+            </div>
+          </div>
+          <span class="pit-fix">內文行高設定在 1.4–1.6 倍，並存進 Text Style，避免每次手動調整。</span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">使用過多裝飾性字體</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-type">
+                <span style="font-family:'Brush Script MT',cursive;font-size:17px">Sprout App</span>
+                <span style="font-family:'Times New Roman',serif;font-size:12px;font-style:italic">Smart Plant Care</span>
+                <span style="font-family:'Courier New',monospace;font-size:10px">Download now!</span>
+                <span style="font-family:Impact,fantasy;font-size:12px;letter-spacing:.04em">FREE TRIAL</span>
+              </div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-type">
+                <span style="font-size:15px;font-weight:700;letter-spacing:-.02em">Sprout App</span>
+                <span style="font-size:11px;font-weight:500">Smart Plant Care</span>
+                <span style="font-size:10px;color:#86868b">Download now</span>
+                <span style="font-size:10px;font-weight:600;color:#0066cc">Free trial →</span>
+              </div>
+            </div>
+          </div>
+          <span class="pit-fix">介面以一套無襯線字體為主，裝飾字體最多只用在 Logo 或大標，一個產品不超過 2 套字體。</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PART 3 · COLOR ═══════════ -->
+  <div class="slide dark">
+    <div class="bg-n">3</div>
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">15 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 3 · Color System</p>
+      <h1>色彩系統<br>從「挑顏色」到「定義語意」</h1>
+      <div class="divider"></div>
+      <h2>UI 色彩不是憑感覺配色，而是一套<strong style="color:#f5f5f7">有功能分工的色票系統（Color Tokens）</strong>：每個顏色都有用途、有名字。</h2>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── 60-30-10 ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">16 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Color 01 · 60-30-10</span>
+      <h1>60-30-10 法則</h1>
+      <div class="viz-row">
+        <div class="viz">
+          <div class="ratio-bar">
+            <div style="flex:60;background:#f5f5f7;color:#86868b">60% 中性背景</div>
+            <div style="flex:30;background:#1f3a5f;color:#fff">30% 主色</div>
+            <div style="flex:10;background:#ff7a1a;color:#fff">10%</div>
+          </div>
+          <div class="mini-ui">
+            <div class="bar"><i></i><i></i><i></i></div>
+            <div class="body">
+              <div class="ln t" style="width:50%"></div>
+              <div class="ln s"></div>
+              <div class="ln xs"></div>
+              <span class="cta">立即報名</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li><span class="hl">60%</span>：中性背景色（白、淺灰），是畫面的底。</li>
+            <li><span class="hl">30%</span>：品牌主色與次要結構色，例如導覽列、標題區、卡片底。</li>
+            <li><span class="hl">10%</span>：強調色，只留給 CTA 按鈕與關鍵數據。</li>
+            <li>強調色用得越少越有力。如果每個按鈕都是橘色，就沒有一個是重點。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Semantic colors ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">17 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Color 02 · Semantic Colors</span>
+      <h1>功能色與語意化命名</h1>
+      <div class="viz-row wide-left">
+        <div class="viz" style="gap:16px">
+          <div class="color-group">
+            <h4>Primary<span>品牌主色，引導主要行動</span></h4>
+            <div class="sw-row">
+              <span class="sw"><i style="background:#cce0f5"></i>100</span>
+              <span class="sw"><i style="background:#4094ff"></i>400</span>
+              <span class="sw"><i style="background:#0066cc"></i><b>500</b></span>
+              <span class="sw"><i style="background:#004c99"></i>700</span>
+            </div>
+          </div>
+          <div class="color-group">
+            <h4>Neutral<span>文字層級、邊框、背景，建議 5–9 階</span></h4>
+            <div class="sw-row">
+              <span class="sw sm"><i style="background:#fbfbfd"></i>50</span>
+              <span class="sw sm"><i style="background:#f5f5f7"></i>100</span>
+              <span class="sw sm"><i style="background:#e8e8ed"></i>200</span>
+              <span class="sw sm"><i style="background:#d2d2d7"></i>300</span>
+              <span class="sw sm"><i style="background:#aeaeb2"></i>400</span>
+              <span class="sw sm"><i style="background:#86868b"></i>500</span>
+              <span class="sw sm"><i style="background:#636366"></i>600</span>
+              <span class="sw sm"><i style="background:#3a3a3c"></i>700</span>
+              <span class="sw sm"><i style="background:#1d1d1f"></i>900</span>
+            </div>
+          </div>
+          <div class="color-group">
+            <h4>Semantic<span>狀態色</span></h4>
+            <div class="sw-row">
+              <span class="sw"><i style="background:#1a7f37"></i><b>Success</b></span>
+              <span class="sw"><i style="background:#f5c400"></i><b>Warning</b></span>
+              <span class="sw"><i style="background:#cf222e"></i><b>Error</b></span>
+              <span class="sw"><i style="background:#0969da"></i><b>Info</b></span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li>依<span class="hl">用途</span>命名，不依外觀命名：<code>color-error</code> 而不是 <code>red</code>，<code>text-secondary</code> 而不是 <code>gray-500</code>。</li>
+            <li>之後品牌換色或要做深色模式時，只要改 token 對應的值，整個產品會一起更新。</li>
+            <li>在 Figma 中存成 <span class="hl">Color Styles</span> 或 <span class="hl">Variables</span>，工程師可以直接對應到 CSS 變數。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── WCAG ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">18 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Color 03 · Accessibility</span>
+      <h1>無障礙對比度 WCAG</h1>
+      <div class="viz-row">
+        <div class="viz">
+          <div class="contrast-grid">
+            <div class="cbox" style="background:#fff"><span class="ct" style="color:#1d1d1f">主要內文</span><span class="cr pass">16.8 : 1 · AAA</span></div>
+            <div class="cbox" style="background:#fff"><span class="ct" style="color:#767676">次要說明文字</span><span class="cr pass">4.5 : 1 · AA 剛好及格</span></div>
+            <div class="cbox" style="background:#fff"><span class="ct" style="color:#aaaaaa">太淺的灰字</span><span class="cr fail">2.3 : 1 · 不及格</span></div>
+            <div class="cbox" style="background:#fff"><span class="ct" style="color:#f5c400">黃色警示文字</span><span class="cr fail">1.6 : 1 · 不及格</span></div>
+            <div class="cbox" style="background:#0066cc"><span class="ct" style="color:#fff">白字藍底按鈕</span><span class="cr" style="color:#cce0f5">5.6 : 1 · AA</span></div>
+            <div class="cbox" style="background:#fff"><span class="ct" style="color:#000">純黑配純白</span><span class="cr" style="color:#86868b">21 : 1 · 過強易眩光</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li>一般內文與背景的對比度至少要達 <span class="hl">AA 級 4.5 : 1</span>。</li>
+            <li>大字（18pt 以上，或 14pt 粗體）的門檻是 3 : 1。</li>
+            <li>黃色、淺灰最容易不及格。警示色當文字用時，要選更深的色階。</li>
+            <li>工具：<a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">WebAIM Contrast Checker ↗</a>，或 Figma 外掛 Stark、Contrast。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Part 3 pitfalls ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">19 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 3 · 新手常見地雷</p>
+      <h1>色彩：這些先避開</h1>
+      <div class="pit-grid">
+        <div class="pit">
+          <span class="pit-x">純黑 #000000 配純白，造成眩光</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-swatch" style="background:#000;color:#fff"><b>純黑底純白字</b><span>長時間閱讀，字的邊緣會刺眼、殘影明顯。</span><em>#000 / #FFF · 21:1</em></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-swatch" style="background:#1d1d1f;color:#f5f5f7"><b>深灰底近白字</b><span>對比依然足夠，眼睛比較不容易疲勞。</span><em>#1D1D1F / #F5F5F7 · 16:1</em></div>
+            </div>
+          </div>
+          <span class="pit-fix">文字改用深灰（如 #1d1d1f），背景用近白（如 #fbfbfd），對比依然足夠，但眼睛更舒服。</span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">同時出現三個以上高飽和色搶焦點</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-ui"><div class="pd-ui-bar" style="background:#e60023"></div><span class="pd-chip" style="background:#ffd400;color:#000">限時</span><div class="ln t"></div><div class="ln s"></div><div class="pd-ui-btns"><span style="background:#00b140">加入</span><span style="background:#0050ff">購買</span></div></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-ui"><div class="pd-ui-bar" style="background:#1f3a5f"></div><span class="pd-chip" style="background:#e8e8ed;color:#1d1d1f">限時</span><div class="ln t"></div><div class="ln s"></div><div class="pd-ui-btns"><span style="background:#fff;color:#1d1d1f;border:1px solid #d2d2d7">加入</span><span style="background:#ff7a1a">購買</span></div></div>
+            </div>
+          </div>
+          <span class="pit-fix">回到 60-30-10：高飽和色只保留給 10% 的重點，其他用中性色或主色的淺色階。</span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">只靠顏色傳達狀態</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-form"><span class="pd-in" style="border-color:#1a7f37">user@mail.com</span><span class="pd-in" style="border-color:#cf222e">••••</span><span class="pd-cb">紅綠色盲看起來兩個框一樣</span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-form"><span class="pd-in" style="border-color:#1a7f37">user@mail.com <i style="color:#1a7f37">✓</i></span><span class="pd-in" style="border-color:#cf222e">•••• <i style="color:#cf222e">✕</i></span><span class="pd-err">✕ 密碼至少 8 個字元</span></div>
+            </div>
+          </div>
+          <span class="pit-fix">色盲使用者分不出紅綠。狀態要搭配 Icon 或文字，例如「✕ 密碼格式錯誤」。</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PART 4 · CONSISTENCY ═══════════ -->
+  <div class="slide dark">
+    <div class="bg-n">4</div>
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">20 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 4 · Consistency &amp; Design Tokens</p>
+      <h1>一致性與設計規範<br>從單頁走向系統</h1>
+      <div class="divider"></div>
+      <h2>這是「平面美編」與「UI 設計師」的分水嶺：不只把一頁做好看，而是建立<strong style="color:#f5f5f7">可複用、可擴展的規則</strong>。</h2>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── 4 dimensions ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">21 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Consistency 01</span>
+      <h1>一致性的四個維度</h1>
+      <div class="principle-grid">
+        <div class="p-card">
+          <span class="p-card-num">01 · Visual</span>
+          <span class="p-card-title">視覺風格</span>
+          <span class="p-card-desc">圓角大小、陰影深度、Icon 線條粗細全站統一</span>
+        </div>
+        <div class="p-card">
+          <span class="p-card-num">02 · Behavior</span>
+          <span class="p-card-title">元件行為</span>
+          <span class="p-card-desc">按鈕的 Default / Hover / Active / Disabled 狀態定義清楚、處處相同</span>
+        </div>
+        <div class="p-card">
+          <span class="p-card-num">03 · Voice</span>
+          <span class="p-card-title">文案語氣</span>
+          <span class="p-card-desc">UX Writing 用詞統一，例如「確定」與「確認」只選一個用到底</span>
+        </div>
+        <div class="p-card">
+          <span class="p-card-num">04 · Logic</span>
+          <span class="p-card-title">操作邏輯</span>
+          <span class="p-card-desc">返回鍵、主要行動按鈕的位置固定，不讓使用者每頁重新找</span>
+        </div>
+      </div>
+      <div class="quote-block" style="margin-top:22px">一致性的目的是讓使用者<strong>學一次就會</strong>。每多一種例外，就多一次重新學習的成本（呼應 Unit 07 的 Jakob's Law）。</div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Atomic design ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">22 / 27</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Consistency 02 · Componentization</span>
+      <h1>元件化思維：原子設計</h1>
+      <div class="viz" style="margin-top:22px">
+        <div class="atomic">
+          <div class="atom-step">
+            <span class="an">Tokens</span>
+            <div class="sw-row"><span class="sw sm"><i style="background:#0066cc"></i></span><span class="sw sm"><i style="background:#1d1d1f"></i></span><span style="font-size:11px;color:var(--muted);align-self:center">16px · 8pt · r6</span></div>
+            <span class="ad">色彩、字體、間距、圓角，最底層的設計決策</span>
+          </div>
+          <span class="atom-arrow">→</span>
+          <div class="atom-step">
+            <span class="an">Atoms 原子</span>
+            <div class="ui-search"><span class="ui-btn">搜尋</span><span class="ui-input">輸入框</span></div>
+            <span class="ad">按鈕、輸入框、Icon、標籤</span>
+          </div>
+          <span class="atom-arrow">→</span>
+          <div class="atom-step">
+            <span class="an">Molecules 分子</span>
+            <div class="ui-search"><span class="ui-input">找課程…</span><span class="ui-btn">搜尋</span></div>
+            <span class="ad">原子組合成有功能的小單位，例如搜尋列</span>
+          </div>
+          <span class="atom-arrow">→</span>
+          <div class="atom-step">
+            <span class="an">Organisms 組織</span>
+            <div class="ui-header"><span class="ui-logo"></span><div class="ui-search"><span class="ui-input">找課程…</span><span class="ui-btn">搜尋</span></div></div>
+            <span class="ad">分子組合成完整區塊，例如頁首導覽</span>
+          </div>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top:20px">
+        <div class="p-card"><span class="p-card-num">Style Guide 設計規範</span><span class="p-card-desc">靜態的規則書：說明顏色、字體、間距該怎麼用。</span></div>
+        <div class="p-card"><span class="p-card-num">Design System 設計系統</span><span class="p-card-desc">活的系統：包含可互動的元件庫，以及和前端對接的開發文件。下一單元（Unit 09）會實際動手建立元件庫。</span></div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Part 4 pitfalls ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">23 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 4 · 新手常見地雷</p>
+      <h1>一致性：這些先避開</h1>
+      <div class="pit-grid">
+        <div class="pit">
+          <span class="pit-x">同一份檔案圓角有時 4px、有時 12px</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-radius"><span class="pd-r-card" style="border-radius:2px">卡片 r2</span><span class="pd-r-btn" style="border-radius:12px">按鈕 r12</span><span class="pd-r-btn" style="border-radius:0">按鈕 r0</span><span class="pd-r-in" style="border-radius:20px">輸入框 r20</span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-radius"><span class="pd-r-card" style="border-radius:12px">卡片 r12</span><span class="pd-r-btn" style="border-radius:6px">按鈕 r6</span><span class="pd-r-btn" style="border-radius:6px">按鈕 r6</span><span class="pd-r-in" style="border-radius:6px">輸入框 r6</span></div>
+            </div>
+          </div>
+          <span class="pit-fix">先定好 2–3 種圓角（例如小元件 4、卡片 12、膠囊 999），存成 Variables，只用這幾種。</span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">Icon 混用實心（Filled）與線條（Outlined）</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-icons"><svg viewBox="0 0 24 24" fill="#1d1d1f" stroke="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.4-9.2C1.2 8.4 3.4 5 6.8 5c2 0 3.4 1.1 5.2 3 1.8-1.9 3.2-3 5.2-3 3.4 0 5.6 3.4 4.2 6.8C19.5 16.4 12 21 12 21z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg><svg viewBox="0 0 24 24" fill="#1d1d1f" stroke="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg></div><span class="pd-cap">實心、細線、粗線混在一起</span>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-icons"><svg viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.4-9.2C1.2 8.4 3.4 5 6.8 5c2 0 3.4 1.1 5.2 3 1.8-1.9 3.2-3 5.2-3 3.4 0 5.6 3.4 4.2 6.8C19.5 16.4 12 21 12 21z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg></div><span class="pd-cap">同一套線條、同一粗細</span>
+            </div>
+          </div>
+          <span class="pit-fix">整個產品選定一套 Icon 庫與一種風格。實心只用在「已選取」等狀態切換。</span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">每頁的表單輸入框高度都不一樣</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="pd-form"><span class="pd-in" style="height:18px">姓名 <em>28</em></span><span class="pd-in" style="height:30px">電話 <em>44</em></span><span class="pd-in" style="height:23px">Email <em>36</em></span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="pd-form"><span class="pd-in" style="height:26px">姓名 <em>40</em></span><span class="pd-in" style="height:26px">電話 <em>40</em></span><span class="pd-in" style="height:26px">Email <em>40</em></span></div>
+            </div>
+          </div>
+          <span class="pit-fix">把輸入框做成元件（例如固定 40 或 48 高），所有頁面都用同一個 Instance。</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ WORKSHOP ═══════════ -->
+  <div class="slide dark">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">24 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Workshop · 60 min</p>
+      <h1>Before / After<br>資訊層級重構練習</h1>
+      <div class="divider"></div>
+      <h2>拿到一張資訊雜亂、沒有色彩、沒有對齊的純文字卡片，例如商品詳情卡、活動報名摘要或數據儀表板卡片，分兩階段重構</h2>
+      <ul class="blist plain" style="margin-top:24px">
+        <li>課後作業會把同樣的流程放大到整個網頁：<a href="homework.html" target="_blank" rel="noopener" style="color:#4094ff;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(64,148,255,.4)">芽芽 Sprout App 推廣網站重構（1440px）↗</a></li>
+      </ul>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">25 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Workshop · 兩階段重構</p>
+      <h1>先診斷，再重構</h1>
+      <div class="two-col" style="margin-top:26px">
+        <div class="stage">
+          <span class="stage-tag">Stage 1 · 只用黑白灰</span>
+          <h3>用版面與排版做出層級</h3>
+          <div class="chip-row"><span class="chip">8pt 間距</span><span class="chip">字級大小</span><span class="chip">字重</span></div>
+          <ul class="note-list">
+            <li>不能用任何顏色，只能靠距離、大小、粗細區分主次。</li>
+            <li>相關資訊靠近、不相關的拉開（親密性）。</li>
+            <li>檢驗：瞇眼看，能不能一眼找到最重要的資訊？</li>
+          </ul>
+        </div>
+        <div class="stage">
+          <span class="stage-tag">Stage 2 · 加入色彩與狀態</span>
+          <h3>用色彩標出重點與狀態</h3>
+          <div class="chip-row"><span class="chip">60-30-10</span><span class="chip">語意色</span><span class="chip">對比 ≥ 4.5 : 1</span></div>
+          <ul class="note-list">
+            <li>標出主要 CTA 按鈕，強調色只用在這裡。</li>
+            <li>加入一個錯誤或警示狀態，記得搭配 Icon 或文字。</li>
+            <li>檢驗：用對比度工具確認文字與按鈕都達到 AA。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── UI Audit Checklist ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">26 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Self-Check · UI 走查清單</p>
+      <h1>交作業前，自我審查</h1>
+      <div class="two-col" style="margin-top:24px;align-items:start">
+        <div>
+          <div class="layer-badge" style="margin-bottom:14px">版面 ＆ 排版</div>
+          <ul class="checklist">
+            <li>所有間距都是 4 的倍數</li>
+            <li>組內間距小於組間間距，沒有多餘的框線</li>
+            <li>全站字級控制在 5 種以內</li>
+            <li>內文行高在 1.4–1.6 倍之間</li>
+            <li>層級轉成黑白後依然清楚</li>
+          </ul>
+        </div>
+        <div>
+          <div class="layer-badge" style="margin-bottom:14px">色彩 ＆ 一致性</div>
+          <ul class="checklist">
+            <li>主按鈕與內文對比度大於 4.5 : 1</li>
+            <li>強調色只用在 CTA 與關鍵資訊</li>
+            <li>狀態不只靠顏色，也有 Icon 或文字</li>
+            <li>圓角與 Icon 風格全站統一</li>
+            <li>顏色與文字都已存成 Styles / Variables</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Summary ──────────────── -->
+  <div class="slide dark">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 08</span>
+      <span class="slide-num">27 / 27</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Summary</p>
+      <h1>本堂小結</h1>
+      <div class="divider"></div>
+      <ul class="blist" style="margin-top:20px">
+        <li data-n="版面">用 8pt Grid 與親密性建立秩序，靠留白而不是框線來分組</li>
+        <li data-n="排版">用字級階梯與字重做層級，內文行高 1.4–1.6，控制每行字數</li>
+        <li data-n="色彩">用 60-30-10 分配比例，以語意命名色票，內文對比至少 4.5 : 1</li>
+        <li data-n="一致">把視覺、行為、文案、操作的規則打包成 Tokens 與元件，下一單元繼續</li>
+      </ul>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+</div><!-- /#deck -->
+
+<!-- Controls -->
+<div id="ctrls">
+  <button id="prev" aria-label="上一頁">&#8592;</button>
+  <button id="next" aria-label="下一頁">&#8594;</button>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const ctrls  = document.getElementById('ctrls');
+  const total  = slides.length;
+  const prog   = document.getElementById('prog');
+  const dotContainers = Array.from(document.querySelectorAll('.dots'));
+  let cur = 0;
+  ctrls.classList.toggle('dark', slides[0].classList.contains('dark'));
+
+  dotContainers.forEach(container => {
+    slides.forEach((_, i) => {
+      const d = document.createElement('span');
+      d.className = 'dot' + (i === 0 ? ' on' : '');
+      d.addEventListener('click', () => go(i));
+      container.appendChild(d);
+    });
+  });
+
+  function go(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    ctrls.classList.toggle('dark', slides[cur].classList.contains('dark'));
+
+    prog.style.width = ((cur + 1) / total * 100) + '%';
+
+    dotContainers.forEach(container => {
+      Array.from(container.children).forEach((d, i) => {
+        d.classList.toggle('on', i === cur);
+      });
+    });
+  }
+
+  document.getElementById('prev').addEventListener('click', () => go(cur - 1));
+  document.getElementById('next').addEventListener('click', () => go(cur + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(cur + 1); }
+    else if (e.key === 'ArrowLeft')              { e.preventDefault(); go(cur - 1); }
+  });
+
+  // Checklist toggle
+  document.querySelectorAll('.checklist li').forEach(li => {
+    li.addEventListener('click', () => li.classList.toggle('checked'));
+  });
+
+  // Touch swipe support
+  let touchStartX = 0;
+  let touchStartY = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      dx < 0 ? go(cur + 1) : go(cur - 1);
+    }
+  }, { passive: true });
+
+  prog.style.width = (1 / total * 100) + '%';
+})();
+</script>
 </body>
 </html>

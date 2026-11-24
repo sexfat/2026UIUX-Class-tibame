@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 08 作業 · 芽芽 Sprout 推廣網站視覺重構</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fbfbfd; --dark: #1d1d1f; --muted: #6e6e73; --accent: #0066cc;
+  --surface: #f5f5f7; --card: #e8e8ed; --border: #d2d2d7; --max-w: 820px;
+}
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif; background: var(--bg); color: var(--dark); -webkit-font-smoothing: antialiased; padding: 0 16px 96px; line-height: 1.6; }
+.wrap { max-width: var(--max-w); margin: 0 auto; }
+
+.topbar { padding: 32px 0 0; display: flex; justify-content: space-between; align-items: center; }
+.back-link { font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; letter-spacing: .04em; }
+.back-link::before { content: '← '; }
+.unit-pill { font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--accent); background: rgba(0,102,204,.09); padding: 4px 11px; border-radius: 20px; }
+
+header { padding: 48px 0 32px; border-bottom: 1px solid var(--border); }
+.overline { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -.04em; line-height: 1.1; }
+.lead { font-size: 1.1rem; color: var(--muted); margin-top: 16px; }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; }
+.meta span { font-size: 12px; font-weight: 600; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; }
+
+section { padding: 40px 0 8px; }
+h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: 16px; display: flex; align-items: baseline; gap: 12px; }
+h2 .n { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .08em; }
+h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+p { margin-bottom: 12px; }
+ul.dots { padding-left: 20px; margin-bottom: 12px; }
+ul.dots li { margin-bottom: 6px; }
+.hl { color: var(--accent); font-weight: 600; }
+code { font-family: "SF Mono", Menlo, monospace; font-size: .88em; background: var(--surface); border: 1px solid var(--card); padding: 1px 6px; border-radius: 5px; }
+
+.callout { background: rgba(0,102,204,.06); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0; }
+.callout.warn { background: rgba(207,34,46,.05); border-color: #cf222e; }
+
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #fff; font-weight: 600; font-size: 15px; text-decoration: none; padding: 12px 24px; border-radius: 10px; margin: 8px 0 16px; }
+.btn-primary:hover { background: #0058b0; }
+
+.spec { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 14px; }
+.spec th, .spec td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--card); vertical-align: top; }
+.spec th { width: 32%; color: var(--muted); font-weight: 600; }
+.spec td { font-variant-numeric: tabular-nums; }
+
+.steps { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+.step { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; }
+.step-tag { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; display: block; }
+.step ul { padding-left: 20px; }
+.step li { margin-bottom: 4px; }
+
+details { background: var(--surface); border-radius: 12px; padding: 14px 18px; margin: 12px 0; }
+summary { cursor: pointer; font-weight: 600; }
+details ul { padding-left: 20px; margin-top: 10px; }
+details li { margin-bottom: 4px; }
+
+.rubric { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.rubric th, .rubric td { padding: 10px 12px; border-bottom: 1px solid var(--card); text-align: left; vertical-align: top; }
+.rubric th { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.rubric td:last-child, .rubric th:last-child { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 700; }
+.rubric tfoot td { font-weight: 700; border-bottom: none; }
+
+.checklist { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.checklist li { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px 10px 40px; position: relative; font-size: 14px; cursor: pointer; user-select: none; }
+.checklist li::before { content: ''; position: absolute; left: 14px; top: 13px; width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 4px; }
+.checklist li.checked { color: var(--muted); background: rgba(0,102,204,.05); border-color: rgba(0,102,204,.3); }
+.checklist li.checked::before { background: var(--accent); border-color: var(--accent); }
+.checklist li.checked::after { content: '✓'; position: absolute; left: 17px; top: 9px; color: #fff; font-size: 12px; font-weight: 700; }
+
+.files { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; }
+.file { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.file b { display: block; font-size: 12px; color: var(--accent); letter-spacing: .04em; margin-bottom: 4px; }
+.file span { font-size: 13px; color: var(--muted); line-height: 1.5; display: block; }
+
+@media (max-width: 640px) {
+  .checklist { grid-template-columns: 1fr; }
+  .files { grid-template-columns: 1fr 1fr; }
+  .spec th { width: 40%; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back-link" href="slides.html">回到 Unit 08 簡報</a>
+    <span class="unit-pill">Unit 08 · 作業</span>
+  </div>
+
+  <header>
+    <p class="overline">Homework · 介面視覺基礎</p>
+    <h1>芽芽 Sprout<br>App 推廣網站視覺重構</h1>
+    <p class="lead">把一份雜亂的原始線框，重構成層級清楚、規則一致、工程師做得出來的 Desktop 首頁。</p>
+    <div class="meta">
+      <span>Web Desktop 1440px</span>
+      <span>Figma</span>
+      <span>個人作業</span>
+      <span>對應：版面・排版・色彩・一致性</span>
+    </div>
+  </header>
+
+  <!-- 01 情境 -->
+  <section>
+    <h2><span class="n">01</span>作業情境</h2>
+    <p>「芽芽 Sprout」是一款植物照護 App，提供拍照辨識植物、澆水提醒、光照偵測等功能。公司要上線一個推廣網站，目標是讓訪客<span class="hl">看懂這個 App 能做什麼，並且下載它</span>。</p>
+    <p>你接手時，手上只有一份工程師先拼出來的原始線框：內容都在，但版面、字級、間距、框線、圓角與文案用詞都沒有規則。你的任務是用這個單元學到的方法，把它重構成正式的設計稿。</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a class="btn-primary" href="https://www.figma.com/design/WjZmuvxPPzRudyGI25ffFp?node-id=4-2" target="_blank" rel="noopener">開啟 Figma 原始線框 ↗</a>
+      <a class="btn-primary" href="homework-wireframe.html" target="_blank" rel="noopener" style="background:#fff;color:var(--accent);border:1px solid var(--border)">網頁版原始線框 ↗</a>
+    </div>
+    <div class="callout">
+      <strong>素材使用方式：</strong>開啟 Figma 原始線框後，用右上角檔名旁的選單選「Duplicate to your drafts」（複製到你的草稿），在你自己的副本裡修改。原始檔案不要直接動。<br>
+      網頁版內容相同，可以拿來對照或複製文案。
+    </div>
+    <div class="callout warn">
+      <strong>注意：</strong>Figma 原始線框的圖層故意沒有用 Auto Layout、沒有命名、也沒有建 Styles。整理圖層、建立規範本來就是作業的一部分。
+    </div>
+  </section>
+
+  <!-- 02 規格 -->
+  <section>
+    <h2><span class="n">02</span>設計規格</h2>
+    <table class="spec">
+      <tr><th>Frame 尺寸</th><td>Desktop 1440 寬，高度依內容延伸（建議 Frame 預設 <code>Desktop</code> 1440 × 1024 再往下拉長）</td></tr>
+      <tr><th>Layout Grid</th><td>12 欄（Columns）· Gutter 24 · Margin 120，內容寬度 1200</td></tr>
+      <tr><th>間距</th><td>8pt Grid：所有間距用 4 / 8 的倍數，建議使用 8、16、24、32、48、64、96</td></tr>
+      <tr><th>字級</th><td>全頁不超過 5 種字級，內文 16px、行高 1.4–1.6；標題行高 1.2–1.3</td></tr>
+      <tr><th>字體</th><td>中文 Noto Sans TC 或 PingFang TC，英數 Inter 或 SF Pro；數字（價格、統計）使用等寬數字</td></tr>
+      <tr><th>色彩</th><td>60-30-10 原則；建立 Primary、Neutral（至少 5 階）、Semantic 色票；內文與按鈕對比度 ≥ 4.5 : 1</td></tr>
+      <tr><th>圓角</th><td>全頁最多 3 種圓角</td></tr>
+    </table>
+    <h3>內容調整規則</h3>
+    <ul class="dots">
+      <li><span class="hl">可以</span>刪減、合併、重新排序資訊，例如把 10 個以上的導覽項目整理成 5 個以內。</li>
+      <li><span class="hl">可以</span>改寫文案讓它更精簡，但核心訊息（功能、價格、方案差異）必須保留。</li>
+      <li><span class="hl">不可以</span>新增原始線框沒有的功能或方案。</li>
+      <li>圖片以灰色佔位框或自行找的免費素材表示即可，重點不在插圖。</li>
+    </ul>
+  </section>
+
+  <!-- 03 步驟 -->
+  <section>
+    <h2><span class="n">03</span>作業步驟</h2>
+    <div class="steps">
+      <div class="step">
+        <span class="step-tag">Step 0 · 診斷</span>
+        <h3>在原始線框上標出問題</h3>
+        <ul>
+          <li>在你複製的 Figma 檔裡，把原始線框再複製一份當診斷用，用標註框與文字標出<span class="hl">至少 10 個問題</span>。</li>
+          <li>每個問題都要寫明屬於哪一類（版面／排版／色彩／一致性），以及你打算怎麼改。</li>
+        </ul>
+      </div>
+      <div class="step">
+        <span class="step-tag">Stage 1 · 只用黑白灰</span>
+        <h3>用版面與排版重建層級</h3>
+        <ul>
+          <li>只能使用黑、白、灰，靠 8pt 間距、字級大小與字重做出資訊層級。</li>
+          <li>先套好 12 欄 Layout Grid，所有區塊對齊欄線。</li>
+          <li>首屏（Above the Fold）要讓人一眼看懂：這是什麼 App、能幫我做什麼、怎麼下載。</li>
+          <li>檢驗：瞇起眼睛看，主標題與主要下載按鈕是不是最先被看到？</li>
+        </ul>
+      </div>
+      <div class="step">
+        <span class="step-tag">Stage 2 · 加入色彩與狀態</span>
+        <h3>複製 Stage 1，再上色</h3>
+        <ul>
+          <li>依 60-30-10 分配色彩：強調色只留給主要 CTA 與關鍵數據。</li>
+          <li>價格方案要讓「推薦方案」明顯突出，但不能只靠顏色區分。</li>
+          <li>用對比度工具（WebAIM Contrast Checker 或 Figma 外掛 Stark）檢查文字與按鈕。</li>
+        </ul>
+      </div>
+      <div class="step">
+        <span class="step-tag">Step 3 · 整理規範</span>
+        <h3>製作一頁迷你 Style Guide</h3>
+        <ul>
+          <li>色票：Primary、Neutral、Semantic，並用語意命名（例如 <code>text-primary</code>、<code>bg-surface</code>）。</li>
+          <li>字級階梯：每一級的字級、行高、字重，存成 Text Styles。</li>
+          <li>間距、圓角、按鈕尺寸：列出你實際用到的數值。</li>
+          <li>統一用詞：例如按鈕一律用「下載」或「立即下載」，不要混用「確定／確認／Go」。</li>
+        </ul>
+      </div>
+    </div>
+
+    <details>
+      <summary>卡住了嗎？診斷提示（先自己找過再打開）</summary>
+      <ul>
+        <li>導覽列項目太多，登入、註冊、下載三個按鈕高度都不一樣。</li>
+        <li>主標題字級跟內文差不多，而且用了另一套襯線字體。</li>
+        <li>Hero 內文一行橫跨整個寬度、行高太窄，很難讀。</li>
+        <li>首屏有 4 個按鈕搶焦點，看不出哪一個才是主要行動。</li>
+        <li>間距出現 7、9、13、27、37、41 這類沒有規律的數值。</li>
+        <li>統計數字和說明文字同樣大小，數字沒有被強調。</li>
+        <li>卡片的框線、陰影、圓角每張都不一樣；Icon 混用 emoji、實心、空心、文字佔位。</li>
+        <li>使用者心得三則對齊方式各不相同，頭像形狀也不一樣。</li>
+        <li>價格方案的按鈕文案是「確定／確認購買／Go →」，推薦方案不夠明顯。</li>
+        <li>FAQ 的問題與答案沒有層級差異，整段擠在一起。</li>
+        <li>頁尾連結太多，沒有分組。</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- 04 繳交 -->
+  <section>
+    <h2><span class="n">04</span>繳交內容</h2>
+    <p>繳交一個 Figma 連結（權限設為「知道連結的人可以檢視」），檔案內包含以下 4 個 Frame：</p>
+    <div class="files">
+      <div class="file"><b>01 Diagnosis</b><span>原始線框＋至少 10 個問題標註</span></div>
+      <div class="file"><b>02 Grayscale</b><span>Stage 1 黑白灰版本，1440 寬</span></div>
+      <div class="file"><b>03 Color</b><span>Stage 2 彩色完稿，1440 寬</span></div>
+      <div class="file"><b>04 Style Guide</b><span>色票、字級、間距、圓角、用詞</span></div>
+    </div>
+    <p style="margin-top:16px">另外在 Figma 中附上一段 <span class="hl">3–5 點的改版說明</span>：你改了什麼、為什麼這樣改。</p>
+    <div class="callout warn">繳交期限與上傳位置以課堂公告為準。</div>
+  </section>
+
+  <!-- 05 評分 -->
+  <section>
+    <h2><span class="n">05</span>評分標準</h2>
+    <table class="rubric">
+      <thead><tr><th>項目</th><th>看什麼</th><th>配分</th></tr></thead>
+      <tbody>
+        <tr><td>版面配置</td><td>12 欄網格對齊、8pt 間距、親密性分組、首屏資訊權重</td><td>25</td></tr>
+        <tr><td>排版與字體</td><td>字級階梯清楚且不超過 5 種、行高與每行字數合理、層級不靠顏色</td><td>25</td></tr>
+        <tr><td>色彩系統</td><td>60-30-10、語意色、對比度達 AA、狀態不只靠顏色</td><td>25</td></tr>
+        <tr><td>一致性與規範</td><td>圓角、Icon、按鈕、用詞統一；Style Guide 完整且有使用 Styles</td><td>15</td></tr>
+        <tr><td>診斷與說明</td><td>問題標註具體、改版理由說得清楚</td><td>10</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2">合計</td><td>100</td></tr></tfoot>
+    </table>
+  </section>
+
+  <!-- 06 自我檢核 -->
+  <section>
+    <h2><span class="n">06</span>交件前自我檢核</h2>
+    <p style="color:var(--muted);font-size:14px">點一下可以打勾，重新整理頁面就會清空。</p>
+    <ul class="checklist">
+      <li>所有間距都是 4 的倍數</li>
+      <li>所有區塊都對齊 12 欄網格</li>
+      <li>全頁字級不超過 5 種</li>
+      <li>內文行高 1.4–1.6，一行不會太長</li>
+      <li>黑白灰版本就能看出層級</li>
+      <li>首屏只有一個最主要的行動按鈕</li>
+      <li>文字與按鈕對比度 ≥ 4.5 : 1</li>
+      <li>強調色只用在 CTA 與關鍵數據</li>
+      <li>圓角不超過 3 種，Icon 風格統一</li>
+      <li>按鈕文案用詞一致</li>
+      <li>顏色與文字都存成 Styles / Variables</li>
+      <li>4 個 Frame 與改版說明都已完成</li>
+    </ul>
+  </section>
+
+</div>
+<script>
+document.querySelectorAll('.checklist li').forEach(li => li.addEventListener('click', () => li.classList.toggle('checked')));
+</script>
+</body>
+</html>
