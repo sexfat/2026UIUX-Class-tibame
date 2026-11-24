@@ -30,6 +30,7 @@
 - 同一份 Skill 也安裝在本機 `~/.claude/skills/uiux-check`。
 
 ### 主頁與 README
+- `Unit_09/README.md`：單元目標與課程介紹依新簡報改寫（Tokens、原子設計、變體與屬性、設計系統交付、Figma 範本）。
 - `index.html`：Unit 09 卡片加上「Figma 範本」按鈕；新增「Claude Skills」區塊與 uiux-check 卡片（安裝說明、下載 zip）。（`fa48fdf`、`00e9a58`）
 - `README.md`：Unit 09 加上 Figma 範本連結；新增「Claude Skills」表格。（`fa48fdf`、`19599ae`）
 
@@ -37,4 +38,3 @@
 - Figma 範本檔案的分享權限。
 - 修正後的插件尚未在 Figma 桌面版實際執行過（已用模擬環境測試）。
 - `skills/README.md` 中的 `npx degit` 指令與 Claude 網頁版上傳 Skill 的選單名稱尚未實測。
-- `Unit_09/README.md` 的單元目標仍是舊版描述，尚未依新簡報更新。
