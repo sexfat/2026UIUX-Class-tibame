@@ -1,47 +1,2064 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>單元 9：元件、樣式與設計系統概念</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Helvetica Neue", Arial, sans-serif; background: #f4f4f4; color: #222; }
-    .slide { width: 100%; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; border-bottom: 2px solid #ddd; background: #fff; }
-    .slide:nth-child(even) { background: #f9f9f9; }
-    .slide-number { font-size: 12px; color: #aaa; margin-bottom: 16px; align-self: flex-start; }
-    h1 { font-size: 48px; font-weight: 700; color: #111; margin-bottom: 16px; text-align: center; }
-    h2 { font-size: 32px; font-weight: 600; color: #333; margin-bottom: 24px; }
-    p { font-size: 18px; line-height: 1.8; color: #555; max-width: 720px; text-align: center; }
-    ul { font-size: 18px; line-height: 2; color: #444; max-width: 680px; padding-left: 24px; align-self: flex-start; }
-    .tag { font-size: 13px; background: #222; color: #fff; padding: 4px 12px; border-radius: 20px; margin-bottom: 20px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 9 · 元件、樣式與設計系統概念</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #fbfbfd;
+  --dark:    #1d1d1f;
+  --muted:   #86868b;
+  --accent:  #0066cc;
+  --accent2: #0071e3;
+  --accent3: #4094ff;
+  --surface: #f5f5f7;
+  --card:    #e8e8ed;
+  --border:  #d2d2d7;
+  --px: clamp(48px, 7vw, 112px);
+  --py: 52px;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Progress bar ──────────────────────── */
+#prog {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.55s cubic-bezier(.4,0,.2,1);
+  z-index: 200;
+  border-radius: 0 1px 1px 0;
+}
+
+/* ── Slide base ────────────────────────── */
+#deck { position: relative; width: 100%; height: 100vh; }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--py) var(--px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: opacity .5s cubic-bezier(.4,0,.2,1),
+              transform .5s cubic-bezier(.4,0,.2,1),
+              visibility 0s .5s;
+  overflow: hidden;
+}
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity .5s cubic-bezier(.4,0,.2,1),
+              transform .5s cubic-bezier(.4,0,.2,1),
+              visibility 0s 0s;
+}
+
+/* ── Layout regions ──────────────────────── */
+.slide-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  height: 28px;
+}
+
+.slide-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  height: 28px;
+}
+
+/* ── Header elements ─────────────────────── */
+.unit-pill {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(0,102,204,.09);
+  padding: 4px 11px;
+  border-radius: 20px;
+}
+
+.slide-num {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--border);
+  letter-spacing: .04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Footer elements ─────────────────────── */
+.course-label {
+  font-size: 11px;
+  color: var(--border);
+  letter-spacing: .02em;
+}
+
+.dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  cursor: pointer;
+}
+.dot.on {
+  background: var(--accent);
+  width: 16px;
+  border-radius: 2.5px;
+}
+
+/* ── Typography ─────────────────────────── */
+.overline {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+
+.divider {
+  width: 40px; height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin-bottom: 26px;
+  margin-top: 4px;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 3.8vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -.045em;
+  line-height: 1.1;
+  color: var(--dark);
+}
+
+h2 {
+  font-size: clamp(.9rem, 1.5vw, 1.3rem);
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.65;
+  letter-spacing: -.01em;
+  margin-top: 14px;
+}
+
+/* ── Cover slide ────────────────────────── */
+.cover-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+.cover-eyebrow::before {
+  content: '';
+  display: block;
+  width: 28px; height: 1px;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+.cover-title {
+  font-size: clamp(2.4rem, 5.2vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -.055em;
+  line-height: 1.04;
+  color: var(--dark);
+  margin-bottom: 22px;
+}
+
+.cover-sub {
+  font-size: clamp(.9rem, 1.5vw, 1.25rem);
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.6;
+  letter-spacing: -.01em;
+  margin-bottom: 48px;
+}
+
+.cover-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.meta-dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+/* ── Agenda cards ────────────────────────── */
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.agenda-card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 28px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid transparent;
+  transition: border-color .2s;
+}
+.agenda-card:hover { border-color: var(--border); }
+
+.a-step {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.a-time {
+  font-size: clamp(.85rem, 1.25vw, 1.1rem);
+  font-weight: 600;
+  color: var(--dark);
+  line-height: 1.35;
+}
+
+.a-desc {
+  font-size: clamp(.78rem, 1.05vw, .95rem);
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 2px;
+}
+
+/* ── Bullet list ─────────────────────────── */
+.blist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 36px;
+}
+
+.blist li {
+  font-size: clamp(.88rem, 1.3vw, 1.15rem);
+  color: var(--dark);
+  line-height: 1.65;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-radius: 12px;
+  transition: background .2s;
+}
+.blist li:hover { background: var(--card); }
+
+.blist li::before {
+  content: attr(data-n);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(0,102,204,.1);
+  padding: 2px 7px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  letter-spacing: .04em;
+}
+
+.blist.plain li::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: .55em;
+  padding: 0;
+}
+
+.blist .hl {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Background number ───────────────────── */
+.bg-n {
+  position: absolute;
+  right: calc(var(--px) - 16px);
+  top: 50%;
+  transform: translateY(-52%);
+  font-size: clamp(140px, 21vw, 260px);
+  font-weight: 800;
+  color: var(--surface);
+  letter-spacing: -.1em;
+  line-height: 1;
+  z-index: 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+.slide-head, .slide-body, .slide-foot { position: relative; z-index: 1; }
+
+/* ── Layer badge ─────────────────────────── */
+.layer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(0,102,204,.08);
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+  width: fit-content;
+}
+
+/* ── Controls ────────────────────────────── */
+#ctrls {
+  position: fixed;
+  bottom: 28px;
+  right: clamp(36px, 5vw, 80px);
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+}
+
+#ctrls button {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(29,29,31,.06);
+  color: var(--dark);
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, transform .15s;
+}
+#ctrls button:hover { background: rgba(29,29,31,.12); transform: scale(1.06); }
+#ctrls button:active { transform: scale(.94); }
+#ctrls.dark button { background: rgba(255,255,255,.12); color: #f5f5f7; }
+#ctrls.dark button:hover { background: rgba(255,255,255,.2); }
+
+/* ── Quote block ─────────────────────────── */
+.quote-block {
+  border-left: 3px solid var(--accent);
+  padding: 16px 22px;
+  background: rgba(0,102,204,.05);
+  border-radius: 0 12px 12px 0;
+  margin-top: 28px;
+  margin-bottom: 10px;
+  font-size: clamp(.88rem, 1.25vw, 1.1rem);
+  line-height: 1.7;
+  color: var(--dark);
+}
+
+/* ── Two-column layout ───────────────────── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 28px;
+}
+
+/* ── Principle card grid ─────────────────── */
+.principle-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.p-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 18px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid transparent;
+  transition: border-color .2s, transform .2s;
+}
+.p-card:hover { border-color: var(--border); transform: translateY(-2px); }
+
+.p-card-num {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.p-card-title {
+  font-size: clamp(.82rem, 1.1vw, 1rem);
+  font-weight: 600;
+  color: var(--dark);
+  line-height: 1.3;
+}
+
+.p-card-desc {
+  font-size: clamp(.72rem, .95vw, .88rem);
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 4px;
+}
+
+/* ── Law demo visualization ──────────────── */
+.demo-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.demo-box {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+/* Proximity demo */
+.prox-demo { gap: 20px; }
+.dot-group { display: flex; gap: 4px; flex-direction: row; }
+.dot-group span {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--accent);
+  display: block;
+}
+.dot-single {
+  display: flex; flex-direction: column; gap: 4px; align-items: center;
+}
+.dot-single span {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--muted);
+  display: block;
+}
+
+/* Closure demo */
+.circle-open {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 4px solid var(--accent);
+  border-right-color: transparent;
+}
+
+/* Figure-ground demo */
+.fg-box {
+  width: 80px; height: 60px;
+  background: var(--dark);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.fg-box::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  background: #fff;
+  border-radius: 6px;
+}
+
+/* Fitts demo */
+.btn-small {
+  background: var(--muted); color: #fff;
+  border-radius: 6px; padding: 6px 10px;
+  font-size: 11px; font-weight: 600;
+}
+.btn-large {
+  background: var(--accent); color: #fff;
+  border-radius: 10px; padding: 14px 28px;
+  font-size: 14px; font-weight: 600;
+}
+
+/* Progress bar demo */
+.progress-demo {
+  width: 220px;
+}
+.progress-track {
+  height: 8px;
+  background: var(--card);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+}
+.progress-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ── Dark slide variant ──────────────────── */
+.slide.dark { background: #1d1d1f; }
+.slide.dark h1 { color: #f5f5f7; }
+.slide.dark h2 { color: #86868b; }
+.slide.dark .overline { color: #4094ff; }
+.slide.dark .divider { background: #4094ff; }
+.slide.dark .layer-badge { background: rgba(64,148,255,.12); color: #4094ff; }
+.slide.dark .bg-n { color: #2c2c2e; }
+.slide.dark .blist li { background: rgba(255,255,255,.05); color: #f5f5f7; }
+.slide.dark .blist li:hover { background: rgba(255,255,255,.09); }
+.slide.dark .unit-pill { background: rgba(64,148,255,.15); color: #4094ff; }
+.slide.dark .slide-num { color: #48484a; }
+.slide.dark .course-label { color: #3a3a3c; }
+.slide.dark .dot { background: #3a3a3c; }
+.slide.dark .dot.on { background: #4094ff; }
+.slide.dark .quote-block { background: rgba(64,148,255,.08); border-color: #4094ff; color: #f5f5f7; }
+.slide.dark .p-card { background: rgba(255,255,255,.05); }
+.slide.dark .p-card:hover { border-color: #48484a; }
+.slide.dark .p-card-title { color: #f5f5f7; }
+.slide.dark .cover-eyebrow { color: #86868b; }
+.slide.dark .cover-title { color: #f5f5f7; }
+.slide.dark .cover-sub { color: #86868b; }
+.slide.dark .cover-meta { color: #86868b; }
+.slide.dark .meta-dot { background: #48484a; }
+.slide.dark .agenda-card { background: rgba(255,255,255,.05); }
+.slide.dark .a-time { color: #f5f5f7; }
+
+/* ── Checklist ───────────────────────────── */
+.checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checklist li {
+  font-size: clamp(.8rem, 1.15vw, 1rem);
+  color: var(--dark);
+  line-height: 1.55;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  user-select: none;
+}
+
+.checklist li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 2px solid var(--border);
+  background: #fff;
+  margin-top: 1px;
+  transition: background .15s, border-color .15s;
+}
+
+.checklist li.checked {
+  background: rgba(0,102,204,.06);
+  border-color: rgba(0,102,204,.3);
+  color: var(--muted);
+}
+
+.checklist li.checked::before {
+  background: var(--accent);
+  border-color: var(--accent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M1 5l3.5 3.5L11 1' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px;
+}
+
+/* ── Image layout (text + image side by side) ── */
+.img-layout {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: 40px;
+  align-items: center;
+  flex: 1;
+}
+
+.img-layout .text-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide-img {
+  max-height: 320px;
+  max-width: 500px;
+  width: 500px;
+  object-fit: contain;
+  border-radius: 14px;
+  background: transparent;
+}
+
+.slide-img.on-dark {
+  border-radius: 14px;
+  filter: brightness(.95);
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  :root { --px: 20px; --py: 24px; }
+
+  /* 手機版 slide 可上下捲動 */
+  html, body { overflow: auto; height: auto; }
+  #deck { height: auto; }
+  .slide {
+    position: relative;
+    inset: unset;
+    min-height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: none !important;
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+  }
+  .slide.active {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .slide-body { justify-content: flex-start; padding-top: 12px; padding-bottom: 16px; }
+  .course-label { display: none; }
+
+  /* 封面 */
+  .cover-title { font-size: 2.2rem; }
+  .cover-sub { font-size: .9rem; margin-bottom: 20px; }
+  .cover-meta { font-size: 11px; gap: 10px; }
+
+  /* 標題縮小 */
+  h1 { font-size: clamp(1.5rem, 6vw, 2.2rem); }
+  h2 { font-size: clamp(.85rem, 3.5vw, 1.1rem); margin-top: 10px; }
+
+  /* 大綱 */
+  .agenda-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+  .agenda-card { padding: 18px 16px 20px; }
+
+  /* 原則卡片 */
+  .principle-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 16px; }
+  .p-card { padding: 14px 12px 16px; }
+
+  /* 圖文版面：圖在下、文在上 */
+  .img-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .slide-img {
+    width: 100%;
+    max-width: 100%;
+    max-height: 220px;
+    order: 2;
+  }
+  .img-layout .text-col { order: 1; }
+
+  /* 列表 */
+  .blist { margin-top: 14px; gap: 8px; }
+  .blist li { font-size: .9rem; padding: 10px 14px; }
+
+  /* 雙欄變單欄 */
+  .two-col { grid-template-columns: 1fr; gap: 16px; }
+
+  /* 引言 */
+  .quote-block { font-size: .9rem; padding: 12px 16px; margin-top: 14px; }
+
+  /* 背景大字隱藏 */
+  .bg-n { display: none; }
+
+  /* 控制按鈕 */
+  #ctrls { bottom: 16px; right: 16px; gap: 6px; }
+  #ctrls button { width: 36px; height: 36px; font-size: 13px; }
+
+  /* dots 縮小 */
+  .dot { width: 4px; height: 4px; }
+  .dot.on { width: 12px; }
+}
+
+/* ════════ Unit 08 · 視覺基礎專用元件 ════════ */
+.agenda-grid.four { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+.viz-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 26px;
+  align-items: stretch;
+}
+.viz-row.wide-left { grid-template-columns: 1.15fr .85fr; }
+
+.viz {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.viz-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.viz-label.good { color: #1a7f37; }
+.viz-label.bad  { color: #cf222e; }
+
+.note {
+  font-size: clamp(.8rem, 1.1vw, .98rem);
+  color: var(--dark);
+  line-height: 1.7;
+}
+.note .hl { color: var(--accent); font-weight: 600; }
+.note-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.note-list li {
+  font-size: clamp(.8rem, 1.1vw, .98rem);
+  line-height: 1.6;
+  color: var(--dark);
+  padding-left: 16px;
+  position: relative;
+}
+.note-list li::before {
+  content: '';
+  position: absolute; left: 0; top: .6em;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+}
+.note-list .hl { color: var(--accent); font-weight: 600; }
+
+/* 8pt spacing scale */
+.sp-row { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sp-row b { width: 38px; color: var(--dark); font-weight: 600; }
+.sp-bar { height: 14px; background: var(--accent); border-radius: 3px; }
+.sp-bar.half { background: var(--accent3); opacity: .7; }
+.sp-row.bad b { color: #cf222e; }
+.sp-row.bad .sp-bar { background: #cf222e; opacity: .55; }
+
+/* Proximity demo */
+.prox-wrap { display: flex; gap: 20px; justify-content: center; }
+.prox-card { background: #fff; border-radius: 12px; padding: 16px; width: 170px; display: flex; flex-direction: column; border: 1px solid var(--border); }
+.ln { height: 8px; border-radius: 4px; background: var(--card); }
+.ln.t { height: 11px; width: 70%; background: var(--dark); opacity: .8; }
+.ln.s { width: 85%; }
+.ln.xs { width: 55%; }
+.prox-card.bad .ln { margin-bottom: 10px; }
+.prox-card.bad hr { border: none; border-top: 1px solid var(--border); margin: 0 0 10px; }
+.prox-card.good .grp { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.prox-card.good .grp:last-child { margin-bottom: 0; }
+.dim { font-size: 10px; color: var(--accent); font-weight: 600; text-align: center; margin-top: 8px; }
+
+/* Responsive grid demo */
+.grid-demo { display: flex; gap: 6px; height: 74px; padding: 0 14px; background: #fff; border-radius: 10px; border: 1px solid var(--border); }
+.grid-demo span { flex: 1; background: rgba(0,102,204,.14); border-left: 1px solid rgba(0,102,204,.25); border-right: 1px solid rgba(0,102,204,.25); }
+.grid-demo.mobile { width: 140px; padding: 0 16px; gap: 10px; height: 120px; align-self: center; }
+.grid-key { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
+.grid-key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+/* F / Z pattern */
+.scan-wrap { display: flex; gap: 20px; justify-content: center; }
+.scan-wrap figure { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.scan-wrap figcaption { font-size: 12px; font-weight: 600; color: var(--dark); }
+.scan-wrap svg { width: 150px; height: 180px; background: #fff; border-radius: 10px; border: 1px solid var(--border); }
+
+/* Type scale */
+.type-scale { display: flex; flex-direction: column; gap: 10px; }
+.ts-row { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; gap: 14px; border-bottom: 1px solid var(--card); padding-bottom: 8px; }
+.ts-row:last-child { border-bottom: none; }
+.ts-meta { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.4; }
+.ts-meta b { color: var(--accent); font-weight: 700; display: block; font-size: 12px; }
+
+/* Line height demo */
+.lh-sample { font-size: 14px; color: var(--dark); background: #fff; border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+.lh-sample.tight { line-height: 1.05; }
+.lh-sample.good { line-height: 1.6; max-width: 30em; }
+.lh-sample.long { line-height: 1.6; }
+
+/* Tabular figures */
+.num-col { font-size: 18px; font-weight: 500; color: var(--dark); text-align: right; background: #fff; border-radius: 10px; padding: 12px 18px; border: 1px solid var(--border); line-height: 1.7; }
+.num-col.prop { font-variant-numeric: proportional-nums; }
+.num-col.tab  { font-variant-numeric: tabular-nums; }
+.font-pair { display: flex; flex-direction: column; gap: 4px; background: #fff; border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+.font-pair .fp-name { font-size: 11px; color: var(--muted); }
+.font-pair .fp-sample { font-size: 20px; font-weight: 600; color: var(--dark); font-family: 'Inter', "PingFang TC", "Noto Sans TC", sans-serif; }
+
+/* 60-30-10 */
+.ratio-bar { display: flex; height: 44px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.ratio-bar div { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.mini-ui { background: #f5f5f7; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
+.mini-ui .bar { background: #1f3a5f; height: 30px; display: flex; align-items: center; padding: 0 12px; gap: 6px; }
+.mini-ui .bar i { width: 34px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.5); display: block; }
+.mini-ui .body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.mini-ui .cta { align-self: flex-start; background: #ff7a1a; color: #fff; font-size: 11px; font-weight: 700; padding: 7px 14px; border-radius: 7px; margin-top: 4px; }
+
+/* Swatches */
+.sw-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.sw { display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sw i { display: block; width: 46px; height: 34px; border-radius: 8px; border: 1px solid rgba(0,0,0,.06); }
+.sw.sm i { width: 30px; height: 30px; }
+.sw b { color: var(--dark); font-weight: 600; font-size: 11px; }
+.color-group { display: flex; flex-direction: column; gap: 8px; }
+.color-group h4 { font-size: 12px; font-weight: 700; color: var(--dark); }
+.color-group h4 span { font-weight: 400; color: var(--muted); margin-left: 6px; }
+
+/* Contrast */
+.contrast-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.cbox { border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--border); }
+.cbox .ct { font-size: 15px; font-weight: 500; }
+.cbox .cr { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pass { color: #1a7f37; }
+.fail { color: #cf222e; }
+
+/* Atomic design */
+.atomic { display: flex; align-items: stretch; gap: 10px; margin-top: 4px; }
+.atom-step { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.atom-step .an { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.atom-step .ad { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.atom-arrow { align-self: center; color: var(--border); font-size: 18px; }
+.ui-btn { background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 6px; }
+.ui-input { border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 11px; color: var(--muted); background: #fff; }
+.ui-search { display: flex; gap: 6px; align-items: center; }
+.ui-header { display: flex; justify-content: space-between; align-items: center; width: 100%; background: var(--surface); padding: 6px 8px; border-radius: 8px; gap: 6px; }
+.ui-logo { width: 22px; height: 22px; border-radius: 6px; background: var(--dark); }
+
+/* Pitfalls */
+.pit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 30px; }
+.pit { background: var(--surface); border-radius: 14px; padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 10px; border: 1px solid transparent; }
+.pit-x { font-size: clamp(.82rem, 1.1vw, 1rem); font-weight: 600; color: var(--dark); line-height: 1.45; display: flex; gap: 8px; }
+.pit-x::before { content: '✕'; color: #cf222e; font-weight: 700; flex-shrink: 0; }
+.pit-fix { font-size: clamp(.75rem, 1vw, .9rem); color: var(--muted); line-height: 1.6; display: flex; gap: 8px; border-top: 1px solid var(--card); padding-top: 10px; }
+.pit-fix::before { content: '✓'; color: #1a7f37; font-weight: 700; flex-shrink: 0; }
+
+/* Pitfall demo (bad vs good mini illustrations) */
+.pit-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pd { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 22px 12px 12px; height: 150px; position: relative; overflow: hidden; }
+.pd.bad  { border-color: rgba(207,34,46,.35); }
+.pd.good { border-color: rgba(26,127,55,.35); }
+.pd-tag { position: absolute; top: 5px; left: 8px; font-size: 11px; font-weight: 700; }
+.pd.bad .pd-tag  { color: #cf222e; }
+.pd.good .pd-tag { color: #1a7f37; }
+.pd-stack { display: flex; flex-direction: column; gap: 6px; }
+.pd-stack .ln { height: 6px; }
+.pd-stack .ln.t { height: 8px; }
+.pd-btn { width: 52px; height: 14px; border-radius: 4px; background: var(--muted); }
+.pd.good .pd-btn { background: var(--dark); }
+.pd-blk { height: 14px; width: 80%; border-radius: 3px; background: var(--card); }
+.pd-gap { display: flex; align-items: center; font-size: 9px; font-weight: 700; padding-left: 4px; border-left: 2px solid; margin-left: 30%; line-height: 1; font-variant-numeric: tabular-nums; }
+.pd.bad .pd-gap  { color: #cf222e; border-color: rgba(207,34,46,.5); }
+.pd.good .pd-gap { color: #1a7f37; border-color: rgba(26,127,55,.5); }
+.pd-row { display: flex; flex-direction: column; gap: 4px; padding: 0 2px; }
+.pd-row.boxed { border: 1px solid #888; border-radius: 6px; padding: 5px 6px; }
+.pd-row.tint { background: var(--surface); border-radius: 6px; padding: 6px; margin: 0 -4px; }
+
+.pd-type { display: flex; flex-direction: column; gap: 6px; line-height: 1.2; color: var(--dark); }
+.pd-para { font-size: 11px; color: var(--dark); margin: 0; }
+.pd .pd-tag { white-space: nowrap; }
+
+/* Part 3 / 4 pitfall demos */
+.pd-swatch { border-radius: 8px; padding: 10px; height: 100%; display: flex; flex-direction: column; gap: 5px; }
+.pd-swatch b { font-size: 12px; }
+.pd-swatch span { font-size: 10px; line-height: 1.5; }
+.pd-swatch em { font-style: normal; font-size: 9px; opacity: .7; margin-top: auto; font-variant-numeric: tabular-nums; }
+.pd-ui { display: flex; flex-direction: column; gap: 5px; }
+.pd-ui-bar { height: 14px; border-radius: 4px; }
+.pd-chip { align-self: flex-start; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+.pd-ui .ln { height: 6px; }
+.pd-ui-btns { display: flex; gap: 5px; margin-top: 4px; }
+.pd-ui-btns span { flex: 1; font-size: 9px; font-weight: 700; color: #fff; text-align: center; padding: 4px 0; border-radius: 4px; }
+.pd-form { display: flex; flex-direction: column; gap: 6px; }
+.pd-in { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--muted); border: 1.5px solid var(--border); border-radius: 5px; padding: 0 7px; height: 24px; background: #fff; }
+.pd-in i { font-style: normal; font-weight: 700; }
+.pd-in em { font-style: normal; font-size: 9px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.pd.bad .pd-in em { color: #cf222e; }
+.pd.good .pd-in em { color: #1a7f37; }
+.pd-err { font-size: 9px; font-weight: 600; color: #cf222e; }
+.pd-cb { font-size: 9px; color: var(--muted); line-height: 1.4; }
+.pd-radius { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pd-radius span { font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.pd-r-card { grid-column: span 2; height: 36px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+.pd-r-btn { height: 24px; background: var(--dark); color: #fff; }
+.pd-r-in { grid-column: span 2; height: 24px; border: 1px solid var(--border); color: var(--muted); background: #fff; }
+.pd-icons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; justify-items: center; margin-top: 18px; }
+.pd-icons svg { width: 26px; height: 26px; }
+.pd-cap { display: block; font-size: 9px; color: var(--muted); text-align: center; margin-top: 22px; }
+
+/* Workshop stages */
+.stage { background: var(--surface); border-radius: 16px; padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 10px; }
+.stage-tag { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.stage h3 { font-size: clamp(.95rem, 1.35vw, 1.2rem); font-weight: 700; color: var(--dark); letter-spacing: -.01em; }
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: #fff; border: 1px solid var(--border); color: var(--dark); }
+
+@media (max-width: 768px) {
+  .agenda-grid.four { grid-template-columns: 1fr 1fr; }
+  .viz-row, .viz-row.wide-left { grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
+  .pit-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+  .prox-wrap, .scan-wrap { flex-wrap: wrap; }
+  .atomic { flex-direction: column; }
+  .atom-arrow { transform: rotate(90deg); }
+  .ts-row { grid-template-columns: 84px 1fr; }
+  .contrast-grid { grid-template-columns: 1fr; }
+}
+
+/* ════════ Unit 09 · 元件與設計系統專用元件 ════════ */
+.mono, .tk, .dtable code, .code, .insp-row { font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+.tk { font-size: .85em; font-weight: 600; color: var(--accent); background: rgba(0,102,204,.08); padding: 1px 6px; border-radius: 5px; white-space: nowrap; }
+.slide.dark .tk { color: #4094ff; background: rgba(64,148,255,.12); }
+.slide.dark h2 strong { color: #f5f5f7; }
+
+/* Token flow */
+.flow { display: flex; align-items: stretch; gap: 8px; }
+.flow-step { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.fs-k { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.fs-v { font-size: 12px; color: var(--dark); line-height: 1.5; }
+.flow-arrow { align-self: center; color: var(--muted); font-size: 16px; }
+.tk-cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.tk-cat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; font-size: 10px; color: var(--muted); }
+.tk-cat b { font-size: 12px; color: var(--dark); }
+.tk-vis { height: 26px; display: flex; align-items: center; }
+
+/* Data table */
+.dtable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: clamp(.72rem, .98vw, .88rem); background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.dtable th { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 9px 12px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.dtable td { padding: 8px 12px; border-bottom: 1px solid var(--card); color: var(--dark); line-height: 1.5; vertical-align: top; }
+.dtable tr:last-child td { border-bottom: none; }
+.dtable td:first-child { font-weight: 600; }
+.dtable code { font-size: .92em; color: var(--accent); }
+.cs { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1px solid rgba(0,0,0,.1); }
+
+/* Light / Dark mode demo */
+.mode-demo {
+  --m-bg: #F8FAFC; --m-card: #FFFFFF; --m-text: #0F172A; --m-sub: #64748B; --m-border: #E2E8F0;
+  --m-btn: #0F766E; --m-btn-text: #FFFFFF; --m-warn: #B45309;
+  background: var(--m-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+  display: flex; flex-direction: column; gap: 12px; transition: background .3s;
+}
+.mode-demo[data-mode="dark"] {
+  --m-bg: #0F172A; --m-card: #1E293B; --m-text: #F8FAFC; --m-sub: #94A3B8; --m-border: #334155;
+  --m-btn: #2DD4BF; --m-btn-text: #0F172A; --m-warn: #FBBF24;
+}
+.md-card { background: var(--m-card); border: 1px solid var(--m-border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 6px; transition: all .3s; }
+.md-card h4 { font-size: 14px; color: var(--m-text); transition: color .3s; }
+.md-card p { font-size: 11px; color: var(--m-sub); line-height: 1.5; transition: color .3s; }
+.md-warn { font-size: 11px; font-weight: 600; color: var(--m-warn); transition: color .3s; }
+.md-btn { align-self: flex-start; background: var(--m-btn); color: var(--m-btn-text); font-size: 11px; font-weight: 700; padding: 7px 14px; border-radius: 7px; margin-top: 4px; transition: all .3s; }
+.md-toggle { align-self: flex-end; display: inline-flex; border: 1px solid var(--m-border); border-radius: 20px; padding: 2px; background: var(--m-card); transition: all .3s; }
+.md-toggle button { border: none; background: transparent; font: inherit; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 16px; color: var(--m-sub); cursor: pointer; }
+.md-toggle button.on { background: var(--m-btn); color: var(--m-btn-text); }
+
+/* Inspector (pitfall demo) */
+.insp { display: flex; flex-direction: column; gap: 6px; }
+.insp-k { font-size: 9px; color: var(--muted); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.insp-row { display: flex; align-items: center; gap: 6px; font-size: 10px; border: 1px solid var(--border); border-radius: 5px; padding: 4px 6px; background: #fff; color: var(--dark); white-space: nowrap; overflow: hidden; }
+.insp-row i { width: 12px; height: 12px; border-radius: 3px; display: block; flex-shrink: 0; }
+.insp-row s { color: #cf222e; text-decoration: none; }
+
+/* Layer tree (pitfall demo) */
+.tree { display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: var(--dark); }
+.tree span { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.tree .i1 { padding-left: 12px; }
+.tree .i2 { padding-left: 24px; }
+.tree em { font-style: normal; width: 10px; text-align: center; color: var(--muted); flex-shrink: 0; }
+.tree .cmp, .tree .cmp em { color: #7b61ff; }
+.tree .warn { color: #cf222e; }
+
+/* Atomic 5 levels */
+.atomic.five .atom-step { padding: 12px; gap: 8px; min-width: 0; }
+.atom-vis { min-height: 58px; display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 100%; }
+.a-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.a-label { font-size: 10px; font-weight: 600; color: var(--dark); }
+.a-icon { width: 16px; height: 16px; }
+.a-search { display: flex; align-items: center; gap: 4px; border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; font-size: 10px; color: var(--muted); background: #fff; }
+.a-search .x { margin-left: auto; font-size: 10px; color: var(--muted); }
+.a-nav { display: flex; align-items: center; gap: 4px; background: var(--surface); border-radius: 6px; padding: 5px; }
+.a-nav .lg { width: 14px; height: 14px; border-radius: 4px; background: var(--dark); flex-shrink: 0; }
+.a-nav .ln { height: 5px; flex: 1; }
+.a-card { border: 1px solid var(--border); border-radius: 6px; padding: 5px; display: flex; gap: 5px; align-items: center; }
+.a-card .th { width: 18px; height: 18px; border-radius: 4px; background: #99f6e4; flex-shrink: 0; }
+.skel { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.skel i { display: block; background: var(--card); border-radius: 3px; height: 8px; }
+.skel i.h { height: 10px; background: #c7c7cc; }
+.skel .two { display: flex; gap: 4px; }
+.skel .two i { flex: 1; height: 18px; }
+.page-mini { display: flex; flex-direction: column; gap: 3px; width: 100%; font-size: 9px; color: var(--dark); line-height: 1.3; }
+.page-mini b { font-size: 10px; }
+.page-mini .empty { border: 1px dashed var(--border); border-radius: 4px; padding: 3px 5px; color: var(--muted); }
+
+/* Main component vs instance */
+.mi { display: flex; flex-direction: column; gap: 10px; align-items: center; padding: 6px 0; }
+.mi-main { border: 1.5px dashed #7b61ff; border-radius: 10px; padding: 10px 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.mi-tag { font-size: 10px; font-weight: 700; color: #7b61ff; letter-spacing: .02em; }
+.mi-arrows { display: flex; gap: 70px; color: var(--muted); font-size: 14px; }
+.mi-inst { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.mi-box { display: flex; flex-direction: column; gap: 6px; align-items: center; font-size: 10px; color: var(--muted); }
+.mi-box .mi-tag { color: #9b87ff; font-weight: 600; }
+.tbtn { background: #0F766E; color: #fff; font-size: 11px; font-weight: 600; padding: 7px 14px; border-radius: 7px; white-space: nowrap; }
+.tbtn.ovr { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f59e0b; }
+.ovr-note { color: #b45309; font-weight: 600; }
+
+/* State matrix */
+.mx-wrap { overflow-x: auto; }
+.mx { display: grid; grid-template-columns: 96px repeat(6, minmax(78px, 1fr)); gap: 10px 6px; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px; min-width: 620px; }
+.mx-h { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.mx-r { font-size: 11px; font-weight: 600; color: var(--dark); }
+.mx-c { display: flex; justify-content: center; }
+.xb { font-family: inherit; font-size: 11px; font-weight: 600; height: 32px; padding: 0 12px; border-radius: 7px; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid transparent; white-space: nowrap; }
+.xb.pri { background: #0F766E; color: #fff; }
+.xb.pri.hov { background: #115E59; }
+.xb.pri.prs { background: #134E4A; }
+.xb.sec { background: #fff; color: #0F766E; border-color: #0F766E; }
+.xb.sec.hov { background: #F0FDFA; }
+.xb.sec.prs { background: #CCFBF1; }
+.xb.gho { background: transparent; color: #0F766E; }
+.xb.gho.hov { background: #F0FDFA; }
+.xb.gho.prs { background: #CCFBF1; }
+.xb.lnk { background: transparent; color: #0F766E; padding: 0 4px; }
+.xb.lnk.hov { text-decoration: underline; }
+.xb.lnk.prs { color: #134E4A; text-decoration: underline; }
+.xb.foc { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2563EB; }
+.xb.dis { background: #E2E8F0; color: #94A3B8; border-color: transparent; }
+.xb.gho.dis, .xb.lnk.dis { background: transparent; }
+.xb .spin { width: 11px; height: 11px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: u9spin .8s linear infinite; }
+@keyframes u9spin { to { transform: rotate(360deg); } }
+.size-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+.size-row .xb.l { height: 48px; padding: 0 22px; font-size: 14px; border-radius: 9px; }
+.size-row .xb.m { height: 40px; padding: 0 18px; font-size: 13px; border-radius: 8px; }
+.size-row .xb.s { height: 32px; padding: 0 12px; font-size: 11px; }
+.size-item { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Figma properties panel */
+.pp { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; margin: 6px 0 4px; }
+.pp-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--muted); gap: 8px; }
+.pp-ctl { font-size: 11px; color: var(--dark); border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px; background: var(--surface); white-space: nowrap; }
+.pp-sw { width: 26px; height: 15px; border-radius: 8px; background: #0F766E; position: relative; flex-shrink: 0; }
+.pp-sw::after { content: ''; position: absolute; right: 2px; top: 2px; width: 11px; height: 11px; border-radius: 50%; background: #fff; }
+.pp-sw.off { background: var(--card); }
+.pp-sw.off::after { right: auto; left: 2px; }
+.pp-type { font-size: 10px; font-weight: 700; color: #7b61ff; }
+
+/* Variant explosion */
+.vgrid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; }
+.vgrid i { display: block; aspect-ratio: 1.6; border-radius: 2px; background: rgba(207,34,46,.35); }
+.vgrid.good i { background: rgba(26,127,55,.4); }
+.v-count { font-size: clamp(1.4rem, 2.4vw, 2rem); font-weight: 800; letter-spacing: -.03em; color: var(--dark); font-variant-numeric: tabular-nums; }
+.v-count small { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-left: 6px; }
+.v-formula { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bool-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.bool-chips span { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; color: var(--dark); background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 3px 9px 3px 4px; }
+
+/* Pillars */
+.pillar-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.pillar-list li { font-size: clamp(.75rem, 1vw, .9rem); color: var(--dark); line-height: 1.5; padding-left: 14px; position: relative; }
+.pillar-list li::before { content: ''; position: absolute; left: 0; top: .6em; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+/* Auto layout demo + code */
+.al-fig { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px 14px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.al-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: #0F766E; color: #fff; font-size: 13px; font-weight: 600; border-radius: 8px; position: relative; outline: 1.5px dashed #f472b6; outline-offset: 0; }
+.al-btn svg { width: 14px; height: 14px; }
+.al-specs { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.al-specs span { font-size: 10px; font-weight: 600; color: #be185d; background: #fdf2f8; border-radius: 4px; padding: 2px 7px; }
+.code { font-size: 11.5px; line-height: 1.7; background: #1d1d1f; color: #f5f5f7; border-radius: 12px; padding: 14px 16px; white-space: pre; overflow-x: auto; }
+.code .c { color: #86868b; }
+.code .k { color: #4094ff; }
+.code .s { color: #ffd479; }
+
+/* Documentation Do / Don't */
+.doc-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.doc-card { background: #fff; border: 1px solid var(--border); border-top: 3px solid; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.doc-card.do { border-top-color: #1a7f37; }
+.doc-card.dont { border-top-color: #cf222e; }
+.doc-tag { font-size: 11px; font-weight: 700; }
+.doc-card.do .doc-tag { color: #1a7f37; }
+.doc-card.dont .doc-tag { color: #cf222e; }
+.doc-cap { font-size: 11px; color: var(--muted); line-height: 1.55; border-top: 1px solid var(--card); padding-top: 8px; margin-top: auto; }
+.fl { font-size: 11px; font-weight: 600; color: var(--dark); }
+.rg { display: flex; flex-direction: column; gap: 7px; font-size: 12px; color: var(--dark); }
+.rg label { display: flex; align-items: center; gap: 8px; }
+.rg i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--muted); display: block; position: relative; flex-shrink: 0; }
+.rg i.on { border-color: #0F766E; }
+.rg i.on::after { content: ''; position: absolute; inset: 2.5px; border-radius: 50%; background: #0F766E; }
+.dd { display: flex; justify-content: space-between; align-items: center; font-size: 12px; border: 1px solid var(--border); border-radius: 7px; padding: 7px 10px; color: var(--muted); background: #fff; }
+
+@media (max-width: 768px) {
+  .flow { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+  .tk-cats { grid-template-columns: repeat(3, 1fr); }
+  .doc-pair { grid-template-columns: 1fr; }
+  .mi-arrows { gap: 40px; }
+  .dtable { font-size: .75rem; }
+  .dtable th, .dtable td { padding: 7px 8px; }
+}
+
+</style>
 </head>
 <body>
-  <section class="slide">
-    <span class="tag">單元 9</span>
-    <h1>元件、樣式與設計系統概念</h1>
-    <p>UI 設計實作課程｜Figma × UX 原則 × AI 整合</p>
-  </section>
-  <section class="slide">
-    <span class="slide-number">02</span>
-    <h2>本堂課目標</h2>
-    <p>（內容待補充）</p>
-  </section>
-  <section class="slide">
-    <span class="slide-number">03</span>
-    <h2>課程內容</h2>
-    <p>（內容待補充）</p>
-  </section>
-  <section class="slide">
-    <span class="slide-number">04</span>
-    <h2>課程內容</h2>
-    <p>（內容待補充）</p>
-  </section>
-  <section class="slide">
-    <span class="slide-number">05</span>
-    <h2>本堂小結</h2>
-    <p>（內容待補充）</p>
-  </section>
+
+<div id="prog"></div>
+
+<div id="deck">
+
+  <!-- ─── Cover ─────────────────── -->
+  <div class="slide active">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">01 / 22</span>
+    </div>
+    <div class="slide-body">
+      <div class="cover-eyebrow">UI 設計實作課程 · 2026</div>
+      <h1 class="cover-title">元件、樣式與<br>設計系統</h1>
+      <p class="cover-sub">Design Tokens · Atomic Design · Variants · Handoff<br>從「畫一張好看的頁面」走向「打造可維護、可擴展的產品系統」</p>
+      <div class="cover-meta">
+        <span>3 小時</span>
+        <span class="meta-dot"></span>
+        <span>22 張投影片</span>
+        <span class="meta-dot"></span>
+        <span>Figma 實戰觀念</span>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── 課程大綱 ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">02 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Agenda</p>
+      <h1>課程大綱</h1>
+      <div class="agenda-grid four">
+        <div class="agenda-card">
+          <span class="a-step">Part 1</span>
+          <span class="a-time">樣式與設計權杖<br>Styles &amp; Tokens</span>
+          <span class="a-desc">Primitive 與 Semantic 兩層命名、Styles 與 Variables 的分工</span>
+        </div>
+        <div class="agenda-card">
+          <span class="a-step">Part 2</span>
+          <span class="a-time">元件與原子設計<br>Atomic Design</span>
+          <span class="a-desc">五層架構、母元件與實例的繼承與覆寫規則</span>
+        </div>
+        <div class="agenda-card">
+          <span class="a-step">Part 3</span>
+          <span class="a-time">變體與屬性控制<br>Variants &amp; Properties</span>
+          <span class="a-desc">狀態矩陣，以及 Variant、Boolean、Text、Instance Swap 四種屬性</span>
+        </div>
+        <div class="agenda-card">
+          <span class="a-step">Part 4</span>
+          <span class="a-time">設計系統與交付<br>System &amp; Handoff</span>
+          <span class="a-desc">設計系統三大支柱、Auto Layout 與前端 Flexbox 的對應</span>
+        </div>
+      </div>
+      <div class="quote-block" style="margin-top:22px">
+        貫穿四個部分的兩個核心：<strong>單一真相來源（Single Source of Truth）</strong> ＋ <strong>前端元件化思維</strong>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── 核心觀念 ──────────────── -->
+  <div class="slide dark">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">03 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Mindset</p>
+      <h1>從一張好看的頁面<br>到一套產品系統</h1>
+      <div class="divider"></div>
+      <h2>頁面一多，改一次品牌色就要改上百個地方。這個單元要練的，是讓每個設計決策<strong>只存在一個地方</strong>。</h2>
+      <ul class="blist plain" style="margin-top:24px">
+        <li><span><span class="hl">單一真相來源</span>：顏色、間距、元件都只定義一次，其他地方全部「引用」它</span></li>
+        <li><span><span class="hl">前端元件化思維</span>：設計師怎麼拆圖層，工程師就會怎麼寫結構</span></li>
+        <li><span>按下 Create Component 讓圖層變紫色只是開始，<span class="hl">背後的架構邏輯</span>才是重點</span></li>
+      </ul>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PART 1 · TOKENS ═══════════ -->
+  <div class="slide dark">
+    <div class="bg-n">1</div>
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">04 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 1 · Styles &amp; Design Tokens</p>
+      <h1>樣式與設計權杖<br>把設計決策參數化</h1>
+      <div class="divider"></div>
+      <h2>不要把數值<strong>寫死（Hardcode）</strong>在畫面上，而是用有意義的變數名稱，管理每一個視覺屬性。</h2>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── What are tokens ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">05 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Tokens 01 · What</span>
+      <h1>什麼是 Design Tokens？</h1>
+      <div class="viz-row wide-left">
+        <div class="viz">
+          <span class="viz-label">一個決策，從定義到使用</span>
+          <div class="flow">
+            <div class="flow-step"><span class="fs-k">設計決策</span><span class="fs-v">品牌主色是深青綠</span></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step"><span class="fs-k">Token</span><span class="fs-v"><span class="tk">teal-700</span><br><span style="color:var(--muted)">#0F766E</span></span></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step"><span class="fs-k">兩邊同名</span><span class="fs-v">Figma Variable<br><span class="tk">var(--teal-700)</span></span></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step"><span class="fs-k">被引用</span><span class="fs-v">按鈕、連結、Icon…</span></div>
+          </div>
+          <span class="viz-label" style="margin-top:8px">Token 常見的五種類別</span>
+          <div class="tk-cats">
+            <div class="tk-cat"><b>色彩</b><div class="tk-vis"><span style="display:flex;gap:3px"><i style="display:block;width:16px;height:16px;border-radius:4px;background:#0F766E"></i><i style="display:block;width:16px;height:16px;border-radius:4px;background:#F59E0B"></i><i style="display:block;width:16px;height:16px;border-radius:4px;background:#334155"></i></span></div><span class="mono">color-*</span></div>
+            <div class="tk-cat"><b>字級</b><div class="tk-vis" style="gap:4px;align-items:baseline"><span style="font-size:20px;font-weight:700;color:var(--dark)">Aa</span><span style="font-size:13px;color:var(--dark)">Aa</span></div><span class="mono">font-size-*</span></div>
+            <div class="tk-cat"><b>間距</b><div class="tk-vis" style="gap:3px"><i style="display:block;width:8px;height:12px;background:var(--accent3);opacity:.7;border-radius:2px"></i><i style="display:block;width:16px;height:12px;background:var(--accent);border-radius:2px"></i><i style="display:block;width:24px;height:12px;background:var(--accent);border-radius:2px"></i></div><span class="mono">spacing-*</span></div>
+            <div class="tk-cat"><b>圓角</b><div class="tk-vis" style="gap:4px"><i style="display:block;width:20px;height:20px;border:2px solid var(--dark);border-radius:3px"></i><i style="display:block;width:20px;height:20px;border:2px solid var(--dark);border-radius:8px"></i><i style="display:block;width:20px;height:20px;border:2px solid var(--dark);border-radius:50%"></i></div><span class="mono">radius-*</span></div>
+            <div class="tk-cat"><b>陰影</b><div class="tk-vis"><i style="display:block;width:30px;height:20px;background:#fff;border-radius:5px;box-shadow:0 4px 10px rgba(0,0,0,.18)"></i></div><span class="mono">shadow-*</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li><span class="hl">設計系統的最小原子單位</span>：把色彩、字級、間距、圓角、陰影這些設計決策存成有名字的變數。</li>
+            <li><span class="hl">設計與程式共用同一份</span>：Figma Variables 和前端 CSS Variables 用同一個名字，交付時不用再翻譯。</li>
+            <li><span class="hl">改一次，全站更新</span>：品牌色要調整時，只改 Token 的值，所有引用它的地方會一起改變。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Primitive vs Semantic ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">06 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Tokens 02 · Naming</span>
+      <h1>兩層式命名：Primitive 與 Semantic</h1>
+      <div class="viz-row" style="grid-template-columns:1.25fr .75fr">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="two-col" style="margin-top:0;gap:12px">
+            <div class="p-card"><span class="p-card-num">基礎層 · Primitive / Global</span><span class="p-card-title">描述「它是什麼」</span><span class="p-card-desc"><span class="tk">teal-700: #0F766E</span>　<span class="tk">spacing-4: 16px</span></span></div>
+            <div class="p-card"><span class="p-card-num">語意層 · Semantic / Alias</span><span class="p-card-title">描述「它用在哪裡」</span><span class="p-card-desc"><span class="tk">color-bg-surface</span>　<span class="tk">btn-primary-bg</span></span></div>
+          </div>
+          <table class="dtable">
+            <thead><tr><th>Semantic Token</th><th>Light Mode 指向</th><th>Dark Mode 指向</th></tr></thead>
+            <tbody>
+              <tr><td><code>color-bg-surface</code></td><td><span class="cs" style="background:#F8FAFC"></span>slate-50</td><td><span class="cs" style="background:#0F172A"></span>slate-900</td></tr>
+              <tr><td><code>color-text-primary</code></td><td><span class="cs" style="background:#0F172A"></span>slate-900</td><td><span class="cs" style="background:#F8FAFC"></span>slate-50</td></tr>
+              <tr><td><code>color-text-warning</code></td><td><span class="cs" style="background:#B45309"></span>amber-700</td><td><span class="cs" style="background:#FBBF24"></span>amber-400</td></tr>
+              <tr><td><code>btn-primary-bg</code></td><td><span class="cs" style="background:#0F766E"></span>teal-700</td><td><span class="cs" style="background:#2DD4BF"></span>teal-400</td></tr>
+              <tr><td><code>btn-primary-text</code></td><td><span class="cs" style="background:#FFFFFF"></span>white</td><td><span class="cs" style="background:#0F172A"></span>slate-900</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;justify-content:center">
+          <div class="mode-demo" data-mode="light">
+            <div class="md-toggle"><button class="on" data-set="light">Light</button><button data-set="dark">Dark</button></div>
+            <div class="md-card">
+              <h4>顧問評估預約</h4>
+              <p>元件只引用語意層，切換 Mode 時，語意層會改指向另一組 Primitive。</p>
+              <span class="md-warn">⚠ 尚有 2 個欄位未填寫</span>
+              <span class="md-btn">立即預約</span>
+            </div>
+          </div>
+          <p class="note">按右上角切換看看。<span class="hl">深色模式與多品牌換膚</span>都是靠語意層做到的。</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Styles vs Variables ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">07 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Tokens 03 · In Figma</span>
+      <h1>Figma Styles 與 Variables 怎麼分工？</h1>
+      <table class="dtable" style="margin-top:26px">
+        <thead><tr><th style="width:18%"></th><th>Figma Styles</th><th>Figma Variables</th></tr></thead>
+        <tbody>
+          <tr><td>適合存什麼</td><td>多層疊加的效果：陰影、漸層、多重填色、完整的文字樣式組合</td><td>單一數值：顏色、數字（間距、圓角、尺寸）、字串、布林值</td></tr>
+          <tr><td>多模式切換</td><td>不支援</td><td>支援 Mode：Light / Dark、品牌 A / B、桌機 / 手機</td></tr>
+          <tr><td>可以綁定到</td><td>填色、文字、效果（Effect）</td><td>填色、間距、圓角、寬高、文字內容、圖層顯示與隱藏</td></tr>
+          <tr><td>可以互相引用</td><td>Style 可以使用 Variable 的值</td><td>Variable 可以指向另一個 Variable（就是兩層式命名）</td></tr>
+          <tr><td>對應到前端</td><td>一組 CSS 樣式（例如 <code>box-shadow</code> 疊多層）</td><td>CSS Custom Properties（<code>--btn-primary-bg</code>）</td></tr>
+        </tbody>
+      </table>
+      <div class="quote-block">
+        判斷原則：<strong>一個值就說得完的用 Variables</strong>；需要好幾層疊在一起才成立的用 Styles。
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Part 1 pitfalls ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">08 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 1 · 新手常見地雷</p>
+      <h1>Tokens：這些先避開</h1>
+      <div class="pit-grid">
+        <div class="pit">
+          <span class="pit-x">用滴管直接吸色碼，沒有套用變數</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕ 右側面板</span>
+              <div class="insp"><span class="insp-k">Fill</span><span class="insp-row"><i style="background:#0F766E"></i><span>0F766E</span></span><span class="insp-k">Text</span><span class="insp-row"><i style="background:#0F172A"></i><span>0F172A</span></span><span class="pd-cap" style="margin-top:4px">只看得到色碼</span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓ 右側面板</span>
+              <div class="insp"><span class="insp-k">Fill</span><span class="insp-row"><i style="background:#0F766E"></i><span>btn-primary-bg</span></span><span class="insp-k">Text</span><span class="insp-row"><i style="background:#0F172A"></i><span>text-primary</span></span><span class="pd-cap" style="margin-top:4px">看得到變數名稱</span></div>
+            </div>
+          </div>
+          <span class="pit-fix"><span>顏色一律從 Variables 面板選。檢查方法：選取圖層，右側面板顯示的是變數名稱，而不是色碼。</span></span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">用外觀命名，例如 button-green</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕ 品牌改成藍色後</span>
+              <div class="insp" style="margin-top:6px"><span class="insp-row"><i style="background:#2563EB"></i><span>button-<s>green</s></span></span><span class="insp-row"><i style="background:#2563EB"></i><span>text-<s>teal</s></span></span><span class="pd-cap">名字和顏色對不上，要整批改名</span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓ 品牌改成藍色後</span>
+              <div class="insp" style="margin-top:6px"><span class="insp-row"><i style="background:#2563EB"></i><span>btn-primary-bg</span></span><span class="insp-row"><i style="background:#2563EB"></i><span>text-link</span></span><span class="pd-cap">名字不用動，只換指向的值</span></div>
+            </div>
+          </div>
+          <span class="pit-fix"><span>語意層用「用途」命名（<span class="tk">btn-primary-bg</span>），顏色名稱只留在 Primitive 層。</span></span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">元件直接引用 Primitive，跳過語意層</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="tree" style="margin-top:6px"><span>按鈕 Fill</span><span class="i1"><em>→</em><b class="mono">teal-700</b></span><span class="pd-cap" style="margin-top:10px">切到 Dark Mode 時，沒有可以換的地方</span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="tree" style="margin-top:6px"><span>按鈕 Fill</span><span class="i1"><em>→</em><b class="mono">btn-primary-bg</b></span><span class="i2"><em>→</em><span class="mono">teal-700 / teal-400</span></span><span class="pd-cap" style="margin-top:6px">依 Mode 指向不同的值</span></div>
+            </div>
+          </div>
+          <span class="pit-fix"><span>元件只綁 Semantic Token，由 Semantic Token 再去指向 Primitive。</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PART 2 · COMPONENTS ═══════════ -->
+  <div class="slide dark">
+    <div class="bg-n">2</div>
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">09 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 2 · Components &amp; Atomic Design</p>
+      <h1>元件與原子設計<br>用積木組裝介面</h1>
+      <div class="divider"></div>
+      <h2>先拆、再組。拆得好，<strong>改一塊積木就能更新整個產品</strong>。</h2>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Atomic design 5 levels ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">10 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Components 01 · Atomic Design</span>
+      <h1>原子設計的五層架構</h1>
+      <div class="atomic five" style="margin-top:26px">
+        <div class="atom-step">
+          <span class="an">1 · Atoms 原子</span>
+          <div class="atom-vis">
+            <div class="a-row"><span class="a-label">標籤文字</span><svg class="a-icon" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg></div>
+            <div class="a-row"><span class="ui-btn" style="background:#0F766E">按鈕</span></div>
+          </div>
+          <span class="ad">無法再拆分的基礎元素：文字、Icon、單一按鈕</span>
+        </div>
+        <span class="atom-arrow">→</span>
+        <div class="atom-step">
+          <span class="an">2 · Molecules 分子</span>
+          <div class="atom-vis">
+            <div class="a-search"><svg class="a-icon" style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="#86868b" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg>搜尋方案<span class="x">✕</span></div>
+          </div>
+          <span class="ad">2–3 個原子組成的最小功能單元：輸入框 + 放大鏡 + 清除鈕</span>
+        </div>
+        <span class="atom-arrow">→</span>
+        <div class="atom-step">
+          <span class="an">3 · Organisms 有機體</span>
+          <div class="atom-vis">
+            <div class="a-nav"><span class="lg"></span><span class="ln"></span><span class="ln"></span><span class="ui-btn" style="background:#0F766E;font-size:9px;padding:3px 6px">預約</span></div>
+            <div class="a-card"><span class="th"></span><div style="flex:1;display:flex;flex-direction:column;gap:3px"><span class="ln t" style="height:6px"></span><span class="ln s" style="height:5px"></span></div></div>
+          </div>
+          <span class="ad">複雜且獨立的區塊：導覽列、方案卡片</span>
+        </div>
+        <span class="atom-arrow">→</span>
+        <div class="atom-step">
+          <span class="an">4 · Templates 模板</span>
+          <div class="atom-vis">
+            <div class="skel"><i class="h" style="width:100%"></i><i style="width:60%"></i><div class="two"><i></i><i></i><i></i></div></div>
+          </div>
+          <span class="ad">決定有機體擺在哪裡的頁面骨架，不放真實內容</span>
+        </div>
+        <span class="atom-arrow">→</span>
+        <div class="atom-step">
+          <span class="an">5 · Pages 頁面</span>
+          <div class="atom-vis">
+            <div class="page-mini"><b>企業永續顧問方案</b><span>碳盤查 × ESG 報告書撰寫 × 供應鏈減碳輔導一次到位…</span><span class="empty">目前沒有預約紀錄</span></div>
+          </div>
+          <span class="ad">填入真實資料，測試長文字、無資料等邊界情況</span>
+        </div>
+      </div>
+      <div class="quote-block">
+        上一單元認識了前三層。這次補上後兩層：<strong>Template 只管位置，Page 負責壓力測試</strong>，真實內容放進去才會知道版面撐不撐得住。
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Main component vs instance ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">11 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Components 02 · Inheritance</span>
+      <h1>母元件與實例：繼承與覆寫</h1>
+      <div class="viz-row">
+        <div class="viz">
+          <span class="viz-label">Main Component → Instance</span>
+          <div class="mi">
+            <div class="mi-main"><span class="mi-tag">◆ Main Component · Button</span><span class="tbtn">送出</span></div>
+            <div class="mi-arrows"><span>↓</span><span>↓</span><span>↓</span></div>
+            <div class="mi-inst">
+              <div class="mi-box"><span class="mi-tag">◇ Instance</span><span class="tbtn">送出</span><span>沒有覆寫</span></div>
+              <div class="mi-box"><span class="mi-tag">◇ Instance</span><span class="tbtn">送出</span><span>沒有覆寫</span></div>
+              <div class="mi-box"><span class="mi-tag">◇ Instance</span><span class="tbtn ovr">立即預約</span><span class="ovr-note">文字已覆寫</span></div>
+            </div>
+          </div>
+          <table class="dtable" style="margin-top:4px">
+            <thead><tr><th>修改母元件的…</th><th>沒覆寫的實例</th><th>覆寫過文字的實例</th></tr></thead>
+            <tbody>
+              <tr><td>背景色</td><td class="pass">跟著變</td><td class="pass">跟著變</td></tr>
+              <tr><td>文字「送出」→「確認」</td><td class="pass">跟著變</td><td><span class="ovr-note">保留「立即預約」</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <ul class="note-list">
+            <li><span class="hl">改母元件，所有實例同步更新</span>：這就是單一真相來源在元件上的實現。</li>
+            <li><span class="hl">實例可以覆寫（Override）</span>：在實例上改過的文字或顏色，那個屬性就會被鎖定，之後母元件再改同一個屬性也不會蓋掉它。</li>
+            <li><span class="hl">只鎖改過的那一項</span>：沒動過的屬性，仍然繼續跟著母元件更新。</li>
+            <li>想回到母元件的樣子，在實例上使用 <span class="hl">Reset all changes</span>。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Part 2 pitfalls ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">12 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 2 · 新手常見地雷</p>
+      <h1>元件：這些先避開</h1>
+      <div class="pit-grid">
+        <div class="pit">
+          <span class="pit-x">為了微調間距，按右鍵 Detach Instance</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕ 圖層面板</span>
+              <div class="tree" style="margin-top:6px"><span class="cmp"><em>◇</em>Button</span><span class="cmp"><em>◇</em>Button</span><span class="warn"><em>#</em>Frame 1124（已拆散）</span><span class="pd-cap" style="margin-top:8px">改版時這顆不會同步</span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓ 圖層面板</span>
+              <div class="tree" style="margin-top:6px"><span class="cmp"><em>◇</em>Button</span><span class="cmp"><em>◇</em>Button</span><span class="cmp"><em>◇</em>Button · Size=Small</span><span class="pd-cap" style="margin-top:8px">全部仍連著母元件</span></div>
+            </div>
+          </div>
+          <span class="pit-fix"><span>需要不同樣子時，回到母元件新增一個變體或屬性，而不是拆散實例。拆散的實例會變成孤兒，全站改版時無法同步。</span></span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">母元件散落在各個頁面裡</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕ 頁面列表</span>
+              <div class="tree" style="margin-top:6px"><span>首頁 <b class="cmp">◆×3</b></span><span>預約表單 <b class="cmp">◆×2</b></span><span>首頁-備份 <b class="cmp">◆×3</b></span><span class="pd-cap" style="margin-top:6px">找不到哪一個才是本尊</span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓ 頁面列表</span>
+              <div class="tree" style="margin-top:6px"><span>🧩 Components <b class="cmp">◆×5</b></span><span>首頁 <b class="cmp">◇</b></span><span>預約表單 <b class="cmp">◇</b></span><span class="pd-cap" style="margin-top:6px">母元件集中一處</span></div>
+            </div>
+          </div>
+          <span class="pit-fix"><span>把所有母元件集中在獨立的 Components 頁面，或發布成團隊 Library，頁面上只放實例。</span></span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">圖層與元件命名是 Frame 123、Group 7</span>
+          <div class="pit-demo">
+            <div class="pd bad"><span class="pd-tag">✕</span>
+              <div class="tree" style="margin-top:6px"><span><em>#</em>Frame 123</span><span class="i1"><em>▢</em>Rectangle 7</span><span class="i1"><em>T</em>Text</span><span class="i1"><em>⊞</em>Group 3</span></div>
+            </div>
+            <div class="pd good"><span class="pd-tag">✓</span>
+              <div class="tree" style="margin-top:6px"><span class="cmp"><em>◆</em>Button/Primary</span><span class="i1"><em>◇</em>icon-left</span><span class="i1"><em>T</em>label</span><span class="i1"><em>◇</em>icon-right</span></div>
+            </div>
+          </div>
+          <span class="pit-fix"><span>用 <span class="tk">類別/變體</span> 的斜線命名，圖層名稱對應前端的元件與 props，工程師一看就知道結構。</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PART 3 · VARIANTS ═══════════ -->
+  <div class="slide dark">
+    <div class="bg-n">3</div>
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">13 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 3 · Variants &amp; Component Properties</p>
+      <h1>變體與屬性控制<br>少做元件，多做組合</h1>
+      <div class="divider"></div>
+      <h2>這是區分初階與中階 Figma 使用者的關鍵：<strong>元件庫不膨脹</strong>，工程師也能一眼看懂每個屬性對應到哪個參數。</h2>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── State matrix ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">14 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Variants 01 · State Matrix</span>
+      <h1>狀態矩陣：可互動元件都要定義完整狀態</h1>
+      <div class="mx-wrap" style="margin-top:22px">
+        <div class="mx">
+          <span></span>
+          <span class="mx-h">Default</span><span class="mx-h">Hover</span><span class="mx-h">Pressed</span><span class="mx-h">Focus</span><span class="mx-h">Disabled</span><span class="mx-h">Loading</span>
+
+          <span class="mx-r">Primary</span>
+          <span class="mx-c"><span class="xb pri">送出</span></span>
+          <span class="mx-c"><span class="xb pri hov">送出</span></span>
+          <span class="mx-c"><span class="xb pri prs">送出</span></span>
+          <span class="mx-c"><span class="xb pri foc">送出</span></span>
+          <span class="mx-c"><span class="xb pri dis">送出</span></span>
+          <span class="mx-c"><span class="xb pri"><span class="spin"></span>送出</span></span>
+
+          <span class="mx-r">Secondary</span>
+          <span class="mx-c"><span class="xb sec">送出</span></span>
+          <span class="mx-c"><span class="xb sec hov">送出</span></span>
+          <span class="mx-c"><span class="xb sec prs">送出</span></span>
+          <span class="mx-c"><span class="xb sec foc">送出</span></span>
+          <span class="mx-c"><span class="xb sec dis">送出</span></span>
+          <span class="mx-c"><span class="xb sec"><span class="spin"></span>送出</span></span>
+
+          <span class="mx-r">Ghost</span>
+          <span class="mx-c"><span class="xb gho">送出</span></span>
+          <span class="mx-c"><span class="xb gho hov">送出</span></span>
+          <span class="mx-c"><span class="xb gho prs">送出</span></span>
+          <span class="mx-c"><span class="xb gho foc">送出</span></span>
+          <span class="mx-c"><span class="xb gho dis">送出</span></span>
+          <span class="mx-c"><span class="xb gho"><span class="spin"></span>送出</span></span>
+
+          <span class="mx-r">Text Link</span>
+          <span class="mx-c"><span class="xb lnk">送出</span></span>
+          <span class="mx-c"><span class="xb lnk hov">送出</span></span>
+          <span class="mx-c"><span class="xb lnk prs">送出</span></span>
+          <span class="mx-c"><span class="xb lnk foc">送出</span></span>
+          <span class="mx-c"><span class="xb lnk dis">送出</span></span>
+          <span class="mx-c"><span class="xb lnk"><span class="spin"></span>送出</span></span>
+        </div>
+      </div>
+      <div class="viz-row" style="margin-top:16px;grid-template-columns:auto 1fr;align-items:center">
+        <div class="size-row">
+          <div class="size-item"><span class="xb pri l">Large</span>48px</div>
+          <div class="size-item"><span class="xb pri m">Medium</span>40px</div>
+          <div class="size-item"><span class="xb pri s">Small</span>32px</div>
+        </div>
+        <ul class="note-list">
+          <li>三個維度：<span class="hl">類型（Hierarchy）× 尺寸（Size）× 互動狀態（State）</span>。</li>
+          <li><span class="hl">Focus</span> 是鍵盤操作時的外框，屬於無障礙必備狀態，最常被漏掉。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Four component properties ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">15 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">Variants 02 · Component Properties</span>
+      <h1>Figma 元件的四種屬性</h1>
+      <div class="principle-grid">
+        <div class="p-card">
+          <span class="p-card-num">01 · Variant 變體</span>
+          <span class="p-card-title">外觀有明顯差異的狀態</span>
+          <div class="pp"><div class="pp-row">Type <span class="pp-ctl">Primary ▾</span></div><div class="pp-row">State <span class="pp-ctl">Hover ▾</span></div></div>
+          <span class="p-card-desc">Primary 與 Secondary、Default 與 Disabled 這類樣式差異，用下拉選單切換。</span>
+        </div>
+        <div class="p-card">
+          <span class="p-card-num">02 · Boolean 開關</span>
+          <span class="p-card-title">控制元素顯示或隱藏</span>
+          <div class="pp"><div class="pp-row">Show Left Icon <span class="pp-sw"></span></div><div class="pp-row">Show Badge <span class="pp-sw off"></span></div></div>
+          <span class="p-card-desc">「有沒有 Icon」用開關控制，不用多做一個變體，變體數量大幅減少。</span>
+        </div>
+        <div class="p-card">
+          <span class="p-card-num">03 · Text 文字</span>
+          <span class="p-card-title">在面板上直接改文字</span>
+          <div class="pp"><div class="pp-row">Label <span class="pp-ctl" style="min-width:70px">立即預約</span></div><div class="pp-row" style="justify-content:flex-start"><span class="xb pri" style="height:26px;font-size:10px">立即預約</span></div></div>
+          <span class="p-card-desc">在右側面板就能修改按鈕文字，不用雙擊鑽進層層圖層裡。</span>
+        </div>
+        <div class="p-card">
+          <span class="p-card-num">04 · Instance Swap 替換</span>
+          <span class="p-card-title">一鍵替換內部的 Icon</span>
+          <div class="pp"><div class="pp-row">Icon <span class="pp-ctl">◇ arrow-right ▾</span></div><div class="pp-row" style="justify-content:flex-start;gap:6px"><span class="pp-ctl">◇ calendar</span><span class="pp-ctl">◇ check</span></div></div>
+          <span class="p-card-desc">把元件裡的 Icon 換成圖示庫裡的其他圖示，結構不變。</span>
+        </div>
+      </div>
+      <div class="quote-block">
+        對工程師來說，這四種屬性就是元件的 <strong>props</strong>：<span class="tk">&lt;Button type="primary" size="md" leftIcon={Calendar}&gt;立即預約&lt;/Button&gt;</span>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Part 3 pitfall: variant explosion ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">16 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 3 · 新手常見地雷</p>
+      <h1>變體爆炸：一顆按鈕 48 個變體</h1>
+      <div class="viz-row" style="margin-top:24px">
+        <div class="viz">
+          <span class="viz-label bad">✕ 把「有沒有 Icon」也做成變體</span>
+          <div class="v-count">48<small>個變體</small></div>
+          <span class="v-formula">2 類型 × 3 尺寸 × 4 狀態 × 有無 Icon 2 = 48</span>
+          <div class="vgrid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <span class="viz-label good" style="margin-top:10px">✓ 有無 Icon 改用 Boolean 開關</span>
+          <div class="v-count">24<small>個變體 ＋ 1 個開關</small></div>
+          <span class="v-formula">2 類型 × 3 尺寸 × 4 狀態 = 24</span>
+          <div class="vgrid good"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="bool-chips"><span><i class="pp-sw"></i>Show Left Icon</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;gap:14px">
+          <p class="note">每多一個「有 / 沒有」做成變體，數量就<span class="hl">翻倍</span>。元件面板會變得極度肥大，找一顆按鈕都要捲很久。</p>
+          <table class="dtable">
+            <thead><tr><th>想控制的是…</th><th>用哪種屬性</th></tr></thead>
+            <tbody>
+              <tr><td>外觀明顯不同：類型、尺寸、狀態</td><td><code>Variant</code></td></tr>
+              <tr><td>某個元素出現或隱藏</td><td><code>Boolean</code></td></tr>
+              <tr><td>按鈕或標籤上的文字</td><td><code>Text</code></td></tr>
+              <tr><td>換成另一個圖示</td><td><code>Instance Swap</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PART 4 · SYSTEM ═══════════ -->
+  <div class="slide dark">
+    <div class="bg-n">4</div>
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">17 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 4 · Design System &amp; Handoff</p>
+      <h1>設計系統與交付<br>寫給團隊的規格書</h1>
+      <div class="divider"></div>
+      <h2>設計系統不是畫給自己看的，而是<strong>團隊與工程師共用的語言</strong>。</h2>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Three pillars ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">18 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">System 01 · Three Pillars</span>
+      <h1>設計系統的三大支柱</h1>
+      <div class="agenda-grid">
+        <div class="agenda-card">
+          <span class="a-step">Pillar 1</span>
+          <span class="a-time">Design Tokens &amp; Foundations<br>基礎規範</span>
+          <ul class="pillar-list"><li>色彩、字體、間距</li><li>網格、圓角、陰影</li><li>Primitive ＋ Semantic 兩層</li></ul>
+        </div>
+        <div class="agenda-card">
+          <span class="a-step">Pillar 2</span>
+          <span class="a-time">UI Component Library<br>元件庫</span>
+          <ul class="pillar-list"><li>完整的變體與狀態</li><li>Auto Layout 響應式行為</li><li>屬性對應前端 props</li></ul>
+        </div>
+        <div class="agenda-card">
+          <span class="a-step">Pillar 3</span>
+          <span class="a-time">Documentation &amp; Guidelines<br>使用說明文件</span>
+          <ul class="pillar-list"><li>Do / Don't 正確與錯誤用法</li><li>無障礙規範</li><li>UX Writing 文案原則</li></ul>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top:18px;gap:14px">
+        <div class="p-card"><span class="p-card-num" style="color:#cf222e">少了 Tokens</span><span class="p-card-desc">元件裡的顏色都是寫死的，品牌改色時要一顆一顆元件去改。</span></div>
+        <div class="p-card"><span class="p-card-num" style="color:#cf222e">少了文件</span><span class="p-card-desc">元件都在，但每個人用法不同，同一個情境有人用 Radio、有人用 Dropdown。</span></div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Auto layout ↔ CSS ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">19 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">System 02 · Handoff</span>
+      <h1>設計師怎麼拉圖層，工程師就怎麼寫結構</h1>
+      <div class="viz-row wide-left" style="margin-top:22px">
+        <table class="dtable">
+          <thead><tr><th>Figma Auto Layout</th><th>CSS Flexbox</th><th>Tailwind CSS</th></tr></thead>
+          <tbody>
+            <tr><td>方向：水平 / 垂直</td><td><code>flex-direction: row | column</code></td><td><code>flex-row</code> / <code>flex-col</code></td></tr>
+            <tr><td>Gap 8</td><td><code>gap: 8px</code></td><td><code>gap-2</code></td></tr>
+            <tr><td>Padding 12 / 24</td><td><code>padding: 12px 24px</code></td><td><code>py-3 px-6</code></td></tr>
+            <tr><td>Alignment 置中</td><td><code>align-items: center</code></td><td><code>items-center</code></td></tr>
+            <tr><td>Hug contents</td><td><code>width: fit-content</code></td><td><code>w-fit</code></td></tr>
+            <tr><td>Fill container</td><td><code>flex: 1</code></td><td><code>flex-1</code></td></tr>
+            <tr><td>Fixed 320</td><td><code>width: 320px</code></td><td><code>w-80</code></td></tr>
+          </tbody>
+        </table>
+        <div style="display:flex;flex-direction:column;gap:12px;justify-content:center">
+          <div class="al-fig">
+            <span class="al-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>立即預約</span>
+            <div class="al-specs"><span>水平</span><span>Gap 8</span><span>Padding 12 / 24</span><span>Hug</span></div>
+          </div>
+<div class="code"><span class="c">&lt;!-- 同一顆按鈕，寫成程式 --&gt;</span>
+&lt;<span class="k">button</span> class=<span class="s">"flex items-center gap-2
+  py-3 px-6 w-fit"</span>&gt;
+  &lt;<span class="k">CalendarIcon</span> /&gt; 立即預約
+&lt;/<span class="k">button</span>&gt;</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Documentation Do / Don't ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">20 / 22</span>
+    </div>
+    <div class="slide-body">
+      <span class="layer-badge">System 03 · Documentation</span>
+      <h1>元件說明文件：寫出「什麼時候用」</h1>
+      <div class="viz-row wide-left" style="margin-top:24px">
+        <div class="viz">
+          <span class="viz-label">範例：Radio Button 還是 Dropdown？</span>
+          <div class="doc-pair">
+            <div class="doc-card do">
+              <span class="doc-tag">✓ Do</span>
+              <span class="fl">諮詢方式</span>
+              <div class="rg"><label><i class="on"></i>線上視訊</label><label><i></i>到府拜訪</label><label><i></i>電話諮詢</label></div>
+              <span class="doc-cap">選項 2–5 個、需要一眼比較時，用 Radio 全部攤開。</span>
+            </div>
+            <div class="doc-card dont">
+              <span class="doc-tag">✕ Don't</span>
+              <span class="fl">是否需要發票</span>
+              <div class="dd">請選擇<span>▾</span></div>
+              <span class="doc-cap">只有 2 個選項卻藏進 Dropdown，使用者要多點一次才看得到。選項超過 7 個（例如縣市）才適合用 Dropdown。</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center">
+          <p class="note" style="margin-bottom:12px">每個元件的說明至少要寫：</p>
+          <ul class="note-list">
+            <li><span class="hl">使用時機</span>：什麼情境該用這個元件</li>
+            <li><span class="hl">不該使用的時機</span>：以及應該改用哪個元件</li>
+            <li><span class="hl">Do / Don't 對照圖</span>：用畫面說明，比文字更快懂</li>
+            <li><span class="hl">無障礙</span>：鍵盤操作、Focus 樣式、對比度</li>
+            <li><span class="hl">文案原則</span>：按鈕用動詞開頭、錯誤訊息要說怎麼修正</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Part 4 pitfalls ──────────────── -->
+  <div class="slide">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">21 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Part 4 · 新手常見地雷</p>
+      <h1>交付：這些先避開</h1>
+      <div class="pit-grid">
+        <div class="pit">
+          <span class="pit-x">元件庫只有元件本體，完全沒有使用說明</span>
+          <span class="pit-fix"><span>每個元件旁邊附上「何時用 / 何時不用」與 Do / Don't 對照，例如 Radio 與 Dropdown 的選擇規則。</span></span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">圖層用手動擺放，沒有使用 Auto Layout</span>
+          <span class="pit-fix"><span>工程師無法從圖層推斷結構，文字一變長就破版。元件與區塊都用 Auto Layout，並設定好 Hug / Fill / Fixed。</span></span>
+        </div>
+        <div class="pit">
+          <span class="pit-x">只交付 Default 狀態的畫面</span>
+          <span class="pit-fix"><span>Hover、Focus、Error、Loading、無資料要讓工程師自己猜。交付時附上狀態矩陣與邊界案例（長文字、空狀態）。</span></span>
+        </div>
+      </div>
+      <div class="quote-block" style="margin-top:22px">
+        交付前自問：<strong>如果我明天請假，工程師只看這份檔案，能不能把元件正確做出來？</strong>
+      </div>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+  <!-- ─── Summary ──────────────── -->
+  <div class="slide dark">
+    <div class="slide-head">
+      <span class="unit-pill">Unit 09</span>
+      <span class="slide-num">22 / 22</span>
+    </div>
+    <div class="slide-body">
+      <p class="overline">Summary</p>
+      <h1>本堂小結</h1>
+      <div class="divider"></div>
+      <ul class="blist" style="margin-top:20px">
+        <li data-n="Tokens">設計決策存成變數：Primitive 描述「是什麼」，Semantic 描述「用在哪」，深色模式靠語意層切換</li>
+        <li data-n="元件">用原子設計拆解介面，改母元件就同步所有實例，不要隨手 Detach</li>
+        <li data-n="變體">定義完整的狀態矩陣，外觀用 Variant，顯示隱藏用 Boolean，避免變體爆炸</li>
+        <li data-n="系統">Tokens ＋ 元件庫 ＋ 說明文件三者都要有，Auto Layout 就是寫給工程師的結構</li>
+      </ul>
+      <ul class="blist plain" style="margin-top:20px">
+        <li><span>課後練習用的範本：<a href="figma-template.html" target="_blank" rel="noopener" style="color:#4094ff;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(64,148,255,.4)">Figma Design System 範本（Variables · Styles · 元件庫）↗</a></span></li>
+      </ul>
+    </div>
+    <div class="slide-foot">
+      <span class="course-label">UI 設計實作：Figma 與 UX 流程 × AI 設計整合</span>
+      <div class="dots"></div>
+    </div>
+  </div>
+
+</div><!-- /#deck -->
+
+<!-- Controls -->
+<div id="ctrls">
+  <button id="prev" aria-label="上一頁">&#8592;</button>
+  <button id="next" aria-label="下一頁">&#8594;</button>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const ctrls  = document.getElementById('ctrls');
+  const total  = slides.length;
+  const prog   = document.getElementById('prog');
+  const dotContainers = Array.from(document.querySelectorAll('.dots'));
+  let cur = 0;
+  ctrls.classList.toggle('dark', slides[0].classList.contains('dark'));
+
+  dotContainers.forEach(container => {
+    slides.forEach((_, i) => {
+      const d = document.createElement('span');
+      d.className = 'dot' + (i === 0 ? ' on' : '');
+      d.addEventListener('click', () => go(i));
+      container.appendChild(d);
+    });
+  });
+
+  function go(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    ctrls.classList.toggle('dark', slides[cur].classList.contains('dark'));
+
+    prog.style.width = ((cur + 1) / total * 100) + '%';
+
+    dotContainers.forEach(container => {
+      Array.from(container.children).forEach((d, i) => {
+        d.classList.toggle('on', i === cur);
+      });
+    });
+  }
+
+  document.getElementById('prev').addEventListener('click', () => go(cur - 1));
+  document.getElementById('next').addEventListener('click', () => go(cur + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(cur + 1); }
+    else if (e.key === 'ArrowLeft')              { e.preventDefault(); go(cur - 1); }
+  });
+
+  // Checklist toggle
+  document.querySelectorAll('.checklist li').forEach(li => {
+    li.addEventListener('click', () => li.classList.toggle('checked'));
+  });
+
+  // Touch swipe support
+  let touchStartX = 0;
+  let touchStartY = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      dx < 0 ? go(cur + 1) : go(cur - 1);
+    }
+  }, { passive: true });
+
+  prog.style.width = (1 / total * 100) + '%';
+})();
+</script>
+<script>
+// Light / Dark mode demo
+document.querySelectorAll('.mode-demo').forEach(demo => {
+  demo.querySelectorAll('.md-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      demo.dataset.mode = btn.dataset.set;
+      demo.querySelectorAll('.md-toggle button').forEach(b => b.classList.toggle('on', b === btn));
+    });
+  });
+});
+</script>
 </body>
 </html>
